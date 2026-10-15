@@ -24,7 +24,7 @@ jobs:
           npm install --save-dev @capacitor/cli @capacitor/core @capacitor/android
 
       - name: Sync Capacitor
-        run: npx cap sync android
+        run: npx --no-install cap sync android || npx cap sync android
 
       - name: Setup Java JDK
         uses: actions/setup-java@v3
