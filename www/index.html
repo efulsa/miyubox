@@ -1,0 +1,2366 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌸 Miyubox - Miyuka Robux Store ✨</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cuteBg: '#fff5f8',
+                        cuteCard: '#ffffff',
+                        cutePrimary: '#f472b6',
+                        cuteSecondary: '#c084fc',
+                        cuteAccent: '#fb7185',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Flatpickr CSS untuk Kalender Rentang -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Nunito', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #fff0f5;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #fbcfe8;
+            border-radius: 9999px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(1.5deg); }
+        }
+        .animate-float {
+            animation: float 3.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-50 via-purple-50 to-pink-100 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900 text-slate-700 dark:text-slate-100 min-h-screen flex flex-col antialiased pb-20 sm:pb-8 selection:bg-pink-200 selection:text-pink-700">
+
+    <!-- Toast Container (Notifikasi Melayang Pojok Kanan Atas) -->
+    <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- Audio Element untuk Notifikasi -->
+    <audio id="notification-sound" src="notif.mp3" preload="auto"></audio>
+
+    <!-- Auth View (Admin Login) -->
+    <div id="auth-view" class="fixed inset-0 bg-pink-950/40 dark:bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 border border-pink-100 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-6 transform transition-all">
+            <div class="flex justify-between items-center">
+                <div></div>
+                <button type="button" id="close-auth-modal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors w-8 h-8 rounded-full flex items-center justify-center bg-pink-50 dark:bg-slate-800"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div class="text-center space-y-2 -mt-4">
+                <div class="bg-gradient-to-tr from-pink-400 to-purple-400 w-16 h-16 rounded-3xl shadow-lg shadow-pink-200 dark:shadow-none flex items-center justify-center mx-auto text-white transform hover:rotate-6 transition-transform">
+                    <i class="fa-solid fa-wand-magic-sparkles text-2xl"></i>
+                </div>
+                <h1 class="text-xl sm:text-2xl font-extrabold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">Miyubox Admin ✨</h1>
+                <p class="text-xs text-slate-400 dark:text-slate-500">Silakan login akun admin 💕</p>
+            </div>
+
+            <form id="auth-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5">Email Admin</label>
+                    <input type="email" id="auth-email" placeholder="admin@robuxcash.com" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 transition-colors min-h-[46px]" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5">Password</label>
+                    <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 transition-colors min-h-[46px]" required>
+                </div>
+                <button type="submit" id="auth-submit-btn" class="w-full min-h-[48px] bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-bold py-3 rounded-2xl transition shadow-lg shadow-pink-300/50 dark:shadow-none flex items-center justify-center gap-2 active:scale-95">
+                    <i class="fa-solid fa-heart"></i> Masuk Dashboard
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- QRIS Lightbox Modal (Zoom Image) -->
+    <div id="qris-lightbox" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[70] hidden flex items-center justify-center p-4 cursor-zoom-out">
+        <div class="relative max-w-sm sm:max-w-md w-full bg-white dark:bg-slate-900 p-4 rounded-3xl shadow-2xl text-center space-y-3">
+            <button type="button" id="close-qris-lightbox" class="absolute -top-3 -right-3 bg-rose-500 text-white w-9 h-9 rounded-full flex items-center justify-center shadow-lg hover:bg-rose-600 transition">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+            <p class="text-xs font-bold text-pink-500 pt-1">Scan QRIS Miyubox ✨</p>
+            <div class="bg-white p-2 rounded-2xl border border-pink-100 shadow-inner">
+                <img id="qris-zoom-img" src="qris.png" alt="QRIS Large" class="w-full h-auto object-contain rounded-xl">
+            </div>
+            <p class="text-[10px] text-slate-400">Klik di mana saja untuk menutup</p>
+        </div>
+    </div>
+
+    <!-- Proof Lightbox Modal (Zoom Proof Image) -->
+    <div id="proof-lightbox" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[70] hidden flex items-center justify-center p-4 cursor-zoom-out">
+        <div class="relative max-w-sm sm:max-w-md w-full bg-white dark:bg-slate-900 p-4 rounded-3xl shadow-2xl text-center space-y-3">
+            <button type="button" id="close-proof-lightbox" class="absolute -top-3 -right-3 bg-rose-500 text-white w-9 h-9 rounded-full flex items-center justify-center shadow-lg hover:bg-rose-600 transition">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+            <p class="text-xs font-bold text-pink-500 pt-1">Bukti Pembayaran ✨</p>
+            <div class="bg-white p-2 rounded-2xl border border-pink-100 shadow-inner flex items-center justify-center">
+                <img id="proof-zoom-img" src="" alt="Bukti Pembayaran Besar" class="max-h-[70vh] w-auto object-contain rounded-xl mx-auto">
+            </div>
+            <p class="text-[10px] text-slate-400">Klik di mana saja untuk menutup</p>
+        </div>
+    </div>
+
+    <!-- Order Modal (Popup Form Order Tamu) -->
+    <div id="order-modal" class="fixed inset-0 bg-pink-950/40 dark:bg-slate-950/80 backdrop-blur-md z-50 hidden overflow-y-auto custom-scrollbar flex items-start sm:items-center justify-center p-4 py-8">
+        <div class="bg-white/95 dark:bg-slate-900/95 border border-pink-100 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 my-auto relative">
+            <div class="flex justify-between items-center border-b border-pink-100 dark:border-slate-800 pb-3">
+                <h3 class="text-base sm:text-lg font-extrabold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent flex items-center gap-2">
+                    <i class="fa-solid fa-cart-shopping text-pink-400"></i> Form Order Robux ✨
+                </h3>
+                <button type="button" id="close-order-modal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors w-8 h-8 rounded-full flex items-center justify-center bg-pink-50 dark:bg-slate-800"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+
+            <div class="text-center space-y-2">
+                <div class="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-1 animate-float">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-pink-300 to-purple-400 rounded-full blur-lg opacity-50 dark:opacity-40"></div>
+                    <img src="miyu.jpg" alt="Miyuka Mascot" class="relative w-full h-full object-cover rounded-full border-4 border-white dark:border-slate-800 shadow-xl">
+                </div>
+                <div class="inline-flex items-center gap-1.5 px-3 py-0.5 bg-pink-50 dark:bg-slate-800 border border-pink-200 dark:border-slate-700 rounded-full text-[11px] font-bold text-pink-500 dark:text-pink-300">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>Stok Ready: <strong id="guest-stock-display">Memuat...</strong></span>
+                </div>
+                <p class="text-xs text-slate-400 dark:text-slate-500">Silakan isi nama dan jumlah Robux yang ingin dibeli 💕</p>
+            </div>
+
+            <form id="order-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5">Nama Pembeli / Username Roblox</label>
+                    <input type="text" id="order-name" placeholder="Contoh: MiyuRoblox" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs sm:text-sm text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 transition-colors min-h-[46px]" required>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5">Jumlah Robux (R$)</label>
+                    <input type="text" id="order-robux" inputmode="numeric" placeholder="Contoh: 1.000" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs sm:text-sm text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 transition-colors min-h-[46px]" required>
+                    
+                    <div class="grid grid-cols-4 gap-2 mt-2">
+                        <button type="button" class="quick-robux-btn bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 border border-pink-200 dark:border-slate-700 text-pink-600 dark:text-pink-300 py-1.5 rounded-xl text-xs font-bold transition" data-val="100">100 R$</button>
+                        <button type="button" class="quick-robux-btn bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 border border-pink-200 dark:border-slate-700 text-pink-600 dark:text-pink-300 py-1.5 rounded-xl text-xs font-bold transition" data-val="500">500 R$</button>
+                        <button type="button" class="quick-robux-btn bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 border border-pink-200 dark:border-slate-700 text-pink-600 dark:text-pink-300 py-1.5 rounded-xl text-xs font-bold transition" data-val="1000">1.000 R$</button>
+                        <button type="button" class="quick-robux-btn bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 border border-pink-200 dark:border-slate-700 text-pink-600 dark:text-pink-300 py-1.5 rounded-xl text-xs font-bold transition" data-val="5000">5.000 R$</button>
+                    </div>
+
+                    <p class="text-xs text-slate-400 dark:text-slate-500 mt-2">Estimasi Total Harga: <span id="order-est-price" class="font-extrabold text-emerald-500">Rp 0</span></p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5">Metode Pembayaran</label>
+                    <select id="order-payment-method" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs sm:text-sm text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 font-semibold transition-colors" required>
+                        <option value="Bayar Nanti">Bayar Nanti</option>
+                        <option value="Transfer QRIS">Transfer QRIS</option>
+                    </select>
+                </div>
+
+                <!-- QRIS Image Container with Zoom Capability -->
+                <div id="qris-image-container" class="bg-pink-50/50 dark:bg-slate-800/50 border border-pink-200 dark:border-slate-700 rounded-2xl p-4 text-center space-y-2 hidden">
+                    <p class="text-xs font-bold text-pink-500">Scan QRIS di bawah ini untuk pembayaran ✨</p>
+                    <div id="qris-clickable" class="w-48 h-48 mx-auto bg-white p-2 rounded-xl shadow-md border border-pink-100 flex items-center justify-center cursor-zoom-in hover:scale-105 transition-transform group relative">
+                        <img src="qris.png" alt="QRIS Pembayaran" class="w-full h-full object-contain">
+                        <div class="absolute inset-0 bg-pink-900/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+                            <span class="bg-white/90 text-pink-600 text-[10px] font-extrabold px-2 py-1 rounded-full shadow-sm"><i class="fa-solid fa-magnifying-glass-plus"></i> Klik untuk Perbesar</span>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-slate-400">Klik gambar untuk memperbesar QRIS</p>
+                </div>
+
+                <!-- Bayar Nanti Notice Container -->
+                <div id="bayar-nanti-notice" class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-3.5 text-xs text-amber-700 dark:text-amber-300 font-semibold flex items-start gap-2.5">
+                    <i class="fa-solid fa-circle-info text-amber-500 mt-0.5"></i>
+                    <span>Catatan: Kirim DM ke sosmed admin yaa, agar orderannya cepat diproses!</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5">Catatan Tambahan (Opsional)</label>
+                    <textarea id="order-notes" rows="2" placeholder="Link Gamepass / pesan tambahan..." class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs sm:text-sm text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 transition-colors mb-2"></textarea>
+                    
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5"><i class="fa-solid fa-image"></i> Upload Bukti Pembayaran (Opsional - Otomatis dikompres)</label>
+                    <input type="file" id="order-proof-file" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-pink-100 file:text-pink-600 hover:file:bg-pink-200 cursor-pointer">
+                </div>
+
+                <button type="submit" id="order-submit-btn" class="w-full min-h-[48px] bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-extrabold py-3 rounded-2xl transition shadow-lg shadow-pink-300/50 dark:shadow-none flex items-center justify-center gap-2 active:scale-95 text-xs sm:text-sm">
+                    <i class="fa-solid fa-heart"></i> Kirim Order Sekarang
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Dropdown Modal -->
+    <div id="notif-modal" class="fixed inset-0 bg-pink-950/40 dark:bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-pink-100 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-pink-100 dark:border-slate-800 pb-3">
+                <h3 class="text-base font-extrabold text-slate-700 dark:text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-bell text-pink-400"></i> Notifikasi Order Masuk ✨
+                </h3>
+                <button id="close-notif-modal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors w-8 h-8 rounded-full flex items-center justify-center bg-pink-50 dark:bg-slate-800"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div id="notif-list-container" class="overflow-y-auto custom-scrollbar space-y-3 flex-grow pr-1">
+                <p class="text-center text-xs text-slate-400 py-6">Tidak ada pesanan baru.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-pink-950/40 dark:bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-pink-100 dark:border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-center border-b border-pink-100 dark:border-slate-800 pb-3">
+                <h3 class="text-base font-extrabold text-slate-700 dark:text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-gear text-pink-400"></i> Pengaturan Toko ✨
+                </h3>
+                <button id="close-settings-modal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors w-8 h-8 rounded-full flex items-center justify-center bg-pink-50 dark:bg-slate-800"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5">Harga Jual Robux (per 1 R$)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-xs font-bold text-slate-400">Rp</span>
+                        <input type="text" id="admin-robux-rate" inputmode="numeric" placeholder="120" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl pl-10 pr-4 py-3 text-xs sm:text-sm text-slate-700 dark:text-slate-100 font-bold focus:outline-none focus:border-pink-400 transition-colors min-h-[46px]">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5">Notifikasi Browser & Suara</label>
+                    <button id="enable-notif-btn" type="button" class="w-full bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 border border-pink-200 dark:border-slate-700 text-pink-600 dark:text-purple-300 px-4 py-3 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm min-h-[46px]">
+                        <i class="fa-solid fa-bell text-sm"></i>
+                        <span id="enable-notif-text">Aktifkan Notifikasi & Audio</span>
+                    </button>
+                </div>
+
+                <hr class="border-pink-100 dark:border-slate-800 my-2">
+
+                <div>
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5"><i class="fa-brands fa-instagram"></i> Username Instagram</label>
+                    <input type="text" id="admin-ig" placeholder="@miyubox_" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-xs text-slate-700 dark:text-slate-100 font-semibold focus:outline-none focus:border-pink-400 transition-colors">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5"><i class="fa-brands fa-tiktok"></i> Username TikTok</label>
+                    <input type="text" id="admin-tiktok" placeholder="tachibana.miyuka" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-xs text-slate-700 dark:text-slate-100 font-semibold focus:outline-none focus:border-pink-400 transition-colors">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5"><i class="fa-brands fa-discord"></i> Username Discord</label>
+                    <input type="text" id="admin-discord" placeholder="itsmiyuka" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-xs text-slate-700 dark:text-slate-100 font-semibold focus:outline-none focus:border-pink-400 transition-colors">
+                </div>
+
+                <button id="save-rate-btn" class="w-full min-h-[46px] bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-extrabold py-2.5 rounded-2xl transition shadow-md flex items-center justify-center gap-2 active:scale-95 text-xs sm:text-sm mt-4">
+                    <i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-pink-100/80 dark:border-slate-800 sticky top-0 z-40 shadow-sm transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center gap-2">
+            
+            <div class="flex items-center space-x-2.5 min-w-0">
+                <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl shadow-md overflow-hidden flex-shrink-0 animate-bounce border-2 border-white dark:border-slate-800">
+                    <img src="icon.png" alt="Miyubox Icon" class="w-full h-full object-cover">
+                </div>
+                <div class="min-w-0">
+                    <h1 class="text-sm sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">Miyubox 🌸</h1>
+                    <p class="text-[9px] sm:text-xs text-pink-400 font-semibold truncate">Miyuka Robux Store</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <div id="admin-controls" class="hidden flex-row items-center gap-2">
+                    <button id="open-settings-btn" title="Pengaturan Toko" class="bg-pink-50 dark:bg-slate-800 text-pink-500 dark:text-purple-400 px-3.5 py-2 rounded-2xl border border-pink-200 dark:border-slate-700 hover:bg-pink-100 dark:hover:bg-slate-700 transition min-h-[38px] flex items-center justify-center shadow-sm">
+                        <i class="fa-solid fa-gear text-xs"></i>
+                    </button>
+
+                    <button id="notif-btn" title="Notifikasi Order" class="relative bg-pink-50 dark:bg-slate-800 text-pink-500 dark:text-pink-400 px-3.5 py-2 rounded-2xl border border-pink-200 dark:border-slate-700 hover:bg-pink-100 dark:hover:bg-slate-700 transition min-h-[38px] flex items-center justify-center shadow-sm">
+                        <i class="fa-solid fa-bell text-xs"></i>
+                        <span id="notif-badge" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+                    </button>
+                </div>
+
+                <button id="dark-mode-toggle" title="Mode Malam/Terang" class="bg-pink-50 dark:bg-slate-800 text-pink-500 dark:text-purple-400 px-3 py-2 rounded-2xl border border-pink-200 dark:border-slate-700 hover:bg-pink-100 dark:hover:bg-slate-700 transition min-h-[38px] flex items-center justify-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-sun text-xs" id="dark-mode-icon"></i>
+                    <span class="text-xs font-bold hidden sm:inline" id="dark-mode-text">Terang</span>
+                </button>
+
+                <div id="admin-user-controls" class="hidden flex-row items-center gap-2">
+                    <div class="flex items-center gap-1.5 bg-pink-50/80 dark:bg-slate-800 px-3 py-2 rounded-2xl border border-pink-200 dark:border-slate-700 min-h-[38px]">
+                        <i class="fa-solid fa-user-shield text-pink-400 text-xs"></i>
+                        <span id="user-email-display" class="text-xs text-slate-600 dark:text-slate-300 font-bold truncate max-w-[80px] sm:max-w-[150px]">Admin</span>
+                        <button id="logout-btn" title="Keluar" class="text-rose-400 hover:text-rose-600 p-1 rounded-xl transition min-w-[22px] min-h-[22px] flex items-center justify-center">
+                            <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="guest-controls">
+                    <button id="open-login-btn" class="bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white px-3.5 py-2 rounded-2xl text-xs font-extrabold shadow-md hover:shadow-lg transition flex items-center gap-1.5 min-h-[38px]">
+                        <i class="fa-solid fa-lock text-[10px]"></i> <span class="hidden sm:inline">Login</span> Admin
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Guest View -->
+    <main id="guest-view" class="flex-grow max-w-4xl w-full mx-auto px-4 py-6 sm:py-10 space-y-6">
+        <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur border border-pink-100 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-pink-50 dark:border-slate-800">
+                <h3 class="text-xs sm:text-sm font-extrabold text-pink-500 flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-check text-pink-400"></i> Ketentuan Sebelum Order ✨
+                </h3>
+                <span class="text-[10px] bg-pink-100 dark:bg-slate-800 text-pink-600 dark:text-pink-300 px-2.5 py-1 rounded-full font-bold">Wajib Dibaca!</span>
+            </div>
+            
+            <div class="overflow-hidden rounded-2xl border border-pink-100 dark:border-slate-800 shadow-md group relative">
+                <img src="ketentuan.jpg" alt="Note Sebelum Order Miyubox" class="w-full h-auto object-cover transform transition-transform duration-300 group-hover:scale-[1.02]">
+            </div>
+
+            <div class="pt-2">
+                <button type="button" id="open-order-modal-btn" class="w-full min-h-[52px] bg-gradient-to-r from-pink-400 via-purple-400 to-pink-500 hover:from-pink-500 hover:to-purple-600 text-white font-extrabold py-3.5 px-6 rounded-2xl transition shadow-xl shadow-pink-300/40 dark:shadow-none flex items-center justify-center gap-2.5 text-sm sm:text-base active:scale-95 animate-bounce">
+                    <i class="fa-solid fa-heart text-base"></i> ✨ Buka Form Order Robux ✨
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur border border-pink-100 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-3 text-center">
+            <h3 class="text-xs sm:text-sm font-extrabold text-slate-600 dark:text-slate-300 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-address-book text-pink-400"></i> Konfirmasi pembayaran ke sosmed miyuuu disini ya ✨
+            </h3>
+            <div class="flex flex-wrap justify-center gap-3 pt-1">
+                <a id="display-ig-link" href="https://instagram.com/miyubox_" target="_blank" class="bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 border border-pink-200 dark:border-slate-700 px-3.5 py-2 rounded-2xl text-xs font-bold text-pink-500 dark:text-pink-400 transition flex items-center gap-2">
+                    <i class="fa-brands fa-instagram text-sm"></i> <span id="display-ig-text">@miyubox_</span>
+                </a>
+                <a id="display-tiktok-link" href="https://tiktok.com/@tachibana.miyuka" target="_blank" class="bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 border border-pink-200 dark:border-slate-700 px-3.5 py-2 rounded-2xl text-xs font-bold text-pink-500 dark:text-pink-400 transition flex items-center gap-2">
+                    <i class="fa-brands fa-tiktok text-sm"></i> <span id="display-tiktok-text">tachibana.miyuka</span>
+                </a>
+                <a id="display-discord-link" href="https://discord.com" target="_blank" class="bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 border border-pink-200 dark:border-slate-700 px-3.5 py-2 rounded-2xl text-xs font-bold text-pink-500 dark:text-pink-400 transition flex items-center gap-2">
+                    <i class="fa-brands fa-discord text-sm"></i> <span id="display-discord-text">itsmiyuka</span>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Admin Dashboard View -->
+    <main id="admin-view" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-4 sm:py-8 space-y-6 hidden">
+
+        <!-- Bento Header / Filters & Export (Satu Kalender Rentang Tanggal) -->
+        <section class="bg-white/90 dark:bg-slate-900/90 backdrop-blur border border-pink-100 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3">
+            <div class="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-2 w-full md:w-auto">
+                <div class="flex items-center gap-1.5 bg-pink-50/60 dark:bg-slate-800 px-3 py-2 rounded-2xl border border-pink-200 dark:border-slate-700 text-xs min-h-[40px]">
+                    <i class="fa-solid fa-calendar-days text-pink-400"></i>
+                    <span class="text-pink-400 font-bold hidden sm:inline">Tanggal:</span>
+                    <input type="text" id="filter-date-range" placeholder="Pilih Tanggal..." class="bg-transparent text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer w-full text-[11px] sm:text-xs font-semibold" readonly>
+                </div>
+                <div class="flex items-center gap-1.5 bg-pink-50/60 dark:bg-slate-800 px-3 py-2 rounded-2xl border border-pink-200 dark:border-slate-700 text-xs min-h-[40px]">
+                    <i class="fa-solid fa-filter text-pink-400"></i>
+                    <select id="filter-status" class="bg-transparent text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer w-full text-[11px] sm:text-xs font-semibold">
+                        <option value="all">Semua Status</option>
+                        <option value="Lunas">Hanya Lunas ✨</option>
+                        <option value="Belum Lunas">Hanya Piutang / Pending ⏳</option>
+                    </select>
+                </div>
+                <button id="reset-filter-btn" class="min-h-[40px] bg-pink-100/80 dark:bg-slate-800 hover:bg-pink-200 dark:hover:bg-slate-700 text-pink-600 dark:text-pink-400 px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-rotate-right"></i> Reset
+                </button>
+            </div>
+            <div class="flex items-center gap-2 w-full md:w-auto">
+                <button id="export-csv-btn" class="w-full md:w-auto min-h-[42px] bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm active:scale-95">
+                    <i class="fa-solid fa-file-excel"></i> Export CSV Semua Data
+                </button>
+            </div>
+        </section>
+
+        <!-- Bento Grid Stats Layout -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Card 1: Pendapatan -->
+            <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur border border-pink-100 dark:border-slate-800 rounded-3xl p-5 shadow-xl hover:border-emerald-300 transition-all">
+                <div class="flex justify-between items-start gap-2">
+                    <div class="min-w-0 pr-1">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Pendapatan</p>
+                        <h3 id="stat-revenue" class="text-xl sm:text-2xl font-extrabold text-emerald-500 mt-1 truncate">Rp 0</h3>
+                    </div>
+                    <div class="p-3 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-500 rounded-2xl flex-shrink-0">
+                        <i class="fa-solid fa-arrow-trend-up text-lg"></i>
+                    </div>
+                </div>
+                <div class="mt-3 space-y-0.5 border-t border-pink-50 dark:border-slate-800/60 pt-2">
+                    <p class="text-[11px] text-emerald-500 font-bold flex items-center gap-1 truncate">
+                        <i class="fa-solid fa-circle-check text-[10px]"></i> Total Jual (Lunas)
+                    </p>
+                    <p id="stat-pending-revenue" class="text-[11px] text-amber-500 font-bold flex items-center gap-1 truncate">
+                        <i class="fa-solid fa-clock text-[10px]"></i> Pendapatan tertunda : Rp 0
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 2: Modal Terjual (HPP) -->
+            <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur border border-pink-100 dark:border-slate-800 rounded-3xl p-5 shadow-xl hover:border-pink-300 transition-all">
+                <div class="flex justify-between items-start gap-2">
+                    <div class="min-w-0 pr-1">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Modal Terjual (HPP)</p>
+                        <h3 id="stat-profit" class="text-xl sm:text-2xl font-extrabold text-pink-500 mt-1 truncate">Rp 0</h3>
+                    </div>
+                    <div class="p-3 bg-pink-50 dark:bg-pink-950/50 text-pink-500 rounded-2xl flex-shrink-0">
+                        <i class="fa-solid fa-receipt text-lg"></i>
+                    </div>
+                </div>
+                <div class="mt-3 space-y-0.5 border-t border-pink-50 dark:border-slate-800/60 pt-2">
+                    <p id="stat-cogs" class="text-[11px] text-slate-400 font-semibold truncate">
+                        <span class="text-pink-500 font-bold"><i class="fa-solid fa-circle-check text-[10px]"></i> Modal Item Laku</span><br>
+                        <span class="text-purple-500 font-bold"><i class="fa-solid fa-wallet text-[10px]"></i> Profit Bersih: Rp 0</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 3: Biaya Operasional -->
+            <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur border border-pink-100 dark:border-slate-800 rounded-3xl p-5 shadow-xl hover:border-purple-300 transition-all">
+                <div class="flex justify-between items-start gap-2">
+                    <div class="min-w-0 pr-1">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Biaya Operasional</p>
+                        <h3 id="stat-operational" class="text-lg sm:text-xl font-extrabold text-purple-500 mt-1 truncate">Rp 0</h3>
+                    </div>
+                    <div class="p-3 bg-purple-50 dark:bg-purple-950/50 text-purple-500 rounded-2xl flex-shrink-0">
+                        <i class="fa-solid fa-gears text-base"></i>
+                    </div>
+                </div>
+                <div class="mt-3 space-y-0.5 border-t border-pink-50 dark:border-slate-800/60 pt-2">
+                    <p id="stat-cogs-total-spent" class="text-[11px] text-slate-400 font-semibold truncate">
+                        <span class="text-purple-500 font-bold"><i class="fa-solid fa-circle-check text-[10px]"></i> Pengeluaran Admin / Toko</span><br>
+                        <span class="text-rose-500 font-bold"><i class="fa-solid fa-lock text-[10px]"></i> Total Belanja: Rp 0</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 4: Arus Kas -->
+            <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur border border-pink-100 dark:border-slate-800 rounded-3xl p-5 shadow-xl hover:border-rose-300 transition-all">
+                <div class="flex justify-between items-start gap-2">
+                    <div class="min-w-0 pr-1">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Arus Kas</p>
+                        <h3 id="stat-cashflow" class="text-xl sm:text-2xl font-extrabold text-rose-500 mt-1 truncate">Rp 0</h3>
+                    </div>
+                    <div class="p-3 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-500 rounded-2xl flex-shrink-0">
+                        <i class="fa-solid fa-scale-balanced text-lg"></i>
+                    </div>
+                </div>
+                <div class="mt-3 space-y-0.5 border-t border-pink-50 dark:border-slate-800/60 pt-2">
+                    <p id="stat-cashflow-pending" class="text-[11px] text-slate-400 font-semibold truncate">
+                        <span class="text-emerald-500 font-bold"><i class="fa-solid fa-circle-check text-[10px]"></i> Jual - (Modal + Operasional)</span><br>
+                        <span class="text-amber-500 font-bold"><i class="fa-solid fa-clock text-[10px]"></i> Pending: Rp 0</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 5: Robux Terjual -->
+            <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur border border-pink-100 dark:border-slate-800 rounded-3xl p-5 shadow-xl hover:border-pink-300 transition-all">
+                <div class="flex justify-between items-start gap-2">
+                    <div class="min-w-0 pr-1">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Robux Terjual</p>
+                        <h3 id="stat-robux" class="text-lg sm:text-xl font-extrabold text-pink-500 mt-1 truncate">0 R$</h3>
+                    </div>
+                    <div class="p-3 bg-pink-50 dark:bg-pink-950/50 text-pink-500 rounded-2xl flex-shrink-0">
+                        <i class="fa-solid fa-coins text-base"></i>
+                    </div>
+                </div>
+                <div class="mt-3 space-y-0.5 border-t border-pink-50 dark:border-slate-800/60 pt-2">
+                    <p class="text-[11px] text-pink-500 font-bold truncate">
+                        <i class="fa-solid fa-circle-check text-[10px]"></i> Keluar
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 6: Stok Tersedia -->
+            <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur border border-pink-100 dark:border-slate-800 rounded-3xl p-5 shadow-xl hover:border-amber-300 transition-all">
+                <div class="flex justify-between items-start gap-2">
+                    <div class="min-w-0 pr-1">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Robux Tersedia</p>
+                        <h3 id="stat-stock" class="text-lg sm:text-xl font-extrabold text-amber-500 mt-1 truncate">0 R$</h3>
+                    </div>
+                    <div class="p-3 bg-amber-50 dark:bg-amber-950/50 text-amber-500 rounded-2xl flex-shrink-0">
+                        <i class="fa-solid fa-boxes-stacked text-base"></i>
+                    </div>
+                </div>
+                <div class="mt-3 space-y-0.5 border-t border-pink-50 dark:border-slate-800/60 pt-2">
+                    <p id="stat-stock-value" class="text-[11px] text-slate-400 font-semibold truncate">
+                        <span class="text-amber-500 font-bold"><i class="fa-solid fa-circle-check text-[10px]"></i> Nilai: Rp 0</span><br>
+                        <span class="text-amber-500 font-bold"><i class="fa-solid fa-clock text-[10px]"></i> Pending: 0 R$</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bento Charts Grid -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur border border-pink-100 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xs sm:text-sm font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-pink-400"></i> Chart Keuangan
+                    </h2>
+                </div>
+                <div class="relative flex-grow h-60 sm:h-72">
+                    <canvas id="monthlyTrendChart"></canvas>
+                </div>
+            </div>
+            <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur border border-pink-100 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xs sm:text-sm font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-purple-400"></i> Penjualan vs Modal Terjual
+                    </h2>
+                </div>
+                <div class="relative flex-grow h-60 sm:h-72 flex items-center justify-center">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tombol Tampil/Sembunyikan Form khusus HP -->
+        <div class="block sm:hidden">
+            <button id="toggle-form-btn" class="w-full bg-white dark:bg-slate-900 border border-pink-200 dark:border-slate-700 text-pink-500 font-extrabold py-3.5 rounded-2xl text-xs transition flex items-center justify-center gap-2 shadow-md">
+                <i class="fa-solid fa-plus text-xs" id="toggle-icon"></i> <span id="toggle-text">Buka Form Tambah Transaksi</span>
+            </button>
+        </div>
+
+        <!-- Bento Data Tables & Form Section -->
+        <div id="form-section" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Form Input Transaksi Admin -->
+            <div id="transaction-form-card" class="hidden sm:block bg-white/90 dark:bg-slate-900/90 backdrop-blur border border-pink-100 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl h-fit space-y-4">
+                <h2 class="text-sm sm:text-base font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-plus text-pink-400"></i> Tambah Transaksi 💖
+                </h2>
+                <form id="transaction-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-pink-400 mb-1.5">Jenis Transaksi</label>
+                        <select id="tx-type" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-3.5 py-3 text-xs sm:text-sm text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 min-h-[46px] font-semibold" required>
+                            <option value="penjualan">Penjualan Robux / Item (Pemasukan)</option>
+                            <option value="modal">Beli Robux / Modal (Pengeluaran)</option>
+                            <option value="operasional">Biaya Operasional / Keperluan Admin (Pengeluaran)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-pink-400 mb-1.5">Tanggal & Waktu</label>
+                        <input type="datetime-local" id="tx-date" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-3.5 py-3 text-xs sm:text-sm text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 min-h-[46px] font-semibold" required>
+                    </div>
+
+                    <div id="robux-field-wrapper">
+                        <div class="flex justify-between items-center mb-1.5">
+                            <label class="block text-xs font-bold text-pink-400">Jumlah Robux (R$)</label>
+                            <span id="stock-hint" class="text-[10px] sm:text-xs text-purple-500 font-extrabold">Stok: 0 R$</span>
+                        </div>
+                        <input type="text" id="tx-robux" inputmode="numeric" placeholder="Contoh: 1.000" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-3.5 py-3 text-xs sm:text-sm text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 min-h-[46px]">
+                        <p id="discount-hint" class="text-[10px] text-emerald-500 font-bold mt-1.5 hidden"><i class="fa-solid fa-tag"></i> Diskon Grosir Aktif!</p>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1.5">
+                            <label id="label-amount" class="block text-xs font-bold text-pink-400">Total Harga Jual (Rp)</label>
+                            <button type="button" id="apply-reference-btn" class="text-[10px] text-pink-500 hover:underline font-bold hidden">Gunakan Acuan</button>
+                        </div>
+                        <input type="text" id="tx-amount" inputmode="numeric" placeholder="Acuan: Rp 0" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-3.5 py-3 text-xs sm:text-sm text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 min-h-[46px]" required>
+                    </div>
+
+                    <!-- Input Nama Pembeli dengan Live Search / Autocomplete -->
+                    <div class="relative">
+                        <label id="label-party" class="block text-xs font-bold text-pink-400 mb-1.5">Nama Pembeli</label>
+                        <input type="text" id="tx-party" placeholder="Nama pembeli / pelanggan" autocomplete="off" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-3.5 py-3 text-xs sm:text-sm text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 min-h-[46px]" required>
+                        <!-- Live Search Suggestions Dropdown -->
+                        <div id="party-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-slate-900 border border-pink-200 dark:border-slate-700 rounded-2xl shadow-xl max-h-48 overflow-y-auto custom-scrollbar z-50 hidden"></div>
+                    </div>
+
+                    <div>
+                        <label id="label-status" class="block text-xs font-bold text-pink-400 mb-1.5">Status Transaksi</label>
+                        <select id="tx-status" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-3.5 py-3 text-xs sm:text-sm text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 font-semibold">
+                            <option value="Lunas">Lunas ✨</option>
+                            <option value="Belum Lunas">Belum Lunas / Piutang ⏳</option>
+                        </select>
+                    </div>
+
+                    <div id="sales-extra-fields" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-pink-400 mb-1.5">Metode Pembayaran</label>
+                            <select id="tx-method" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-3.5 py-3 text-xs sm:text-sm text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 font-semibold">
+                                <option value="QRIS">QRIS</option>
+                                <option value="BANK">BANK</option>
+                                <option value="DANA">DANA</option>
+                                <option value="GOPAY">GOPAY</option>
+                                <option value="SPAY">SPAY</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-pink-400 mb-1.5">Catatan (Opsional)</label>
+                        <textarea id="tx-notes" rows="2" placeholder="Gamepass, fee, dll" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400"></textarea>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="w-full min-h-[48px] bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-extrabold py-3 rounded-2xl transition shadow-lg shadow-pink-300/50 dark:shadow-none flex items-center justify-center gap-2 active:scale-95 text-xs sm:text-sm">
+                        <i class="fa-solid fa-heart"></i> Simpan Transaksi
+                    </button>
+                </form>
+            </div>
+
+            <!-- Single Combined Transaction Tables Container -->
+            <div class="lg:col-span-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur border border-pink-100 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-xl flex flex-col space-y-4">
+                
+                <!-- Tab Switcher (Desktop & Mobile) -->
+                <div class="flex bg-pink-50/80 dark:bg-slate-800 p-1.5 rounded-2xl border border-pink-200 dark:border-slate-700 shadow-sm">
+                    <button id="tab-sales-btn" class="flex-1 py-2.5 rounded-xl text-xs font-extrabold transition text-white bg-gradient-to-r from-pink-400 to-purple-400 shadow-md flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-cart-shopping"></i> Riwayat Penjualan
+                    </button>
+                    <button id="tab-capital-btn" class="flex-1 py-2.5 rounded-xl text-xs font-extrabold transition text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-bag-shopping"></i> Modal & Operasional
+                    </button>
+                </div>
+
+                <!-- Table Content 1: Riwayat Penjualan -->
+                <div id="sales-table-card" class="flex flex-col space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <h2 class="text-sm sm:text-base font-extrabold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+                            <i class="fa-solid fa-cart-shopping"></i> Riwayat Penjualan
+                        </h2>
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <div class="relative w-full sm:w-52">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-pink-300">
+                                    <i class="fa-solid fa-search text-xs"></i>
+                                </span>
+                                <input type="text" id="search-sales" placeholder="Cari bebas..." class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl pl-9 pr-3 py-2 text-xs text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 min-h-[38px]">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scrollbar flex-grow -mx-4 sm:mx-0 px-4 sm:px-0">
+                        <table class="w-full text-left border-collapse min-w-[720px] sm:min-w-full">
+                            <thead>
+                                <tr class="border-b border-pink-100 dark:border-slate-800 text-[11px] sm:text-xs font-extrabold text-pink-400 uppercase tracking-wider bg-pink-50/30 dark:bg-slate-800/40">
+                                    <th class="py-3 px-3 rounded-l-xl">Tanggal</th>
+                                    <th class="py-3 px-3">Robux</th>
+                                    <th class="py-3 px-3">Total Jual</th>
+                                    <th class="py-3 px-3">Profit (Untung)</th>
+                                    <th class="py-3 px-3">Pembeli</th>
+                                    <th class="py-3 px-3">Status</th>
+                                    <th class="py-3 px-3">Metode</th>
+                                    <th class="py-3 px-3 text-center rounded-r-xl">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-table-body" class="divide-y divide-pink-50 dark:divide-slate-800/60 text-xs sm:text-sm">
+                                <tr>
+                                    <td colspan="8" class="text-center py-6 text-slate-400">Memuat data penjualan...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Sales Pagination Controls -->
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-pink-100 dark:border-slate-800 text-xs font-semibold text-slate-500">
+                        <div class="flex items-center gap-2">
+                            <span>Tampilkan:</span>
+                            <select id="sales-page-size" class="bg-pink-50/50 dark:bg-slate-800 border border-pink-200 dark:border-slate-700 rounded-xl px-2 py-1 text-xs focus:outline-none font-bold">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                            <span id="sales-info" class="text-[11px] text-slate-400">0 - 0 dari 0</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="sales-prev-btn" class="px-3 py-1.5 rounded-xl border border-pink-200 dark:border-slate-700 hover:bg-pink-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1 font-bold">
+                                <i class="fa-solid fa-chevron-left text-[10px]"></i> Prev
+                            </button>
+                            <span id="sales-page-num" class="font-extrabold text-pink-500 px-1">1 / 1</span>
+                            <button id="sales-next-btn" class="px-3 py-1.5 rounded-xl border border-pink-200 dark:border-slate-700 hover:bg-pink-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1 font-bold">
+                                Next <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Content 2: Riwayat Modal & Operasional -->
+                <div id="capital-table-card" class="flex flex-col space-y-4 hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <h2 class="text-sm sm:text-base font-extrabold text-rose-500 dark:text-rose-400 flex items-center gap-2">
+                            <i class="fa-solid fa-bag-shopping"></i> Modal & Operasional
+                        </h2>
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <div class="relative w-full sm:w-52">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-pink-300">
+                                    <i class="fa-solid fa-search text-xs"></i>
+                                </span>
+                                <input type="text" id="search-capital" placeholder="Cari bebas..." class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl pl-9 pr-3 py-2 text-xs text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 min-h-[38px]">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scrollbar flex-grow -mx-4 sm:mx-0 px-4 sm:px-0">
+                        <table class="w-full text-left border-collapse min-w-[650px] sm:min-w-full">
+                            <thead>
+                                <tr class="border-b border-pink-100 dark:border-slate-800 text-[11px] sm:text-xs font-extrabold text-pink-400 uppercase tracking-wider bg-pink-50/30 dark:bg-slate-800/40">
+                                    <th class="py-3 px-3 rounded-l-xl">Tanggal</th>
+                                    <th class="py-3 px-3">Jenis</th>
+                                    <th class="py-3 px-3">Robux Masuk</th>
+                                    <th class="py-3 px-3">Total Biaya</th>
+                                    <th class="py-3 px-3">Keterangan / Supplier</th>
+                                    <th class="py-3 px-3">Status</th>
+                                    <th class="py-3 px-3 text-center rounded-r-xl">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="capital-table-body" class="divide-y divide-pink-50 dark:divide-slate-800/60 text-xs sm:text-sm">
+                                <tr>
+                                    <td colspan="7" class="text-center py-6 text-slate-400">Memuat data pengeluaran...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Capital Pagination Controls -->
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-pink-100 dark:border-slate-800 text-xs font-semibold text-slate-500">
+                        <div class="flex items-center gap-2">
+                            <span>Tampilkan:</span>
+                            <select id="capital-page-size" class="bg-pink-50/50 dark:bg-slate-800 border border-pink-200 dark:border-slate-700 rounded-xl px-2 py-1 text-xs focus:outline-none font-bold">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                            <span id="capital-info" class="text-[11px] text-slate-400">0 - 0 dari 0</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="capital-prev-btn" class="px-3 py-1.5 rounded-xl border border-pink-200 dark:border-slate-700 hover:bg-pink-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1 font-bold">
+                                <i class="fa-solid fa-chevron-left text-[10px]"></i> Prev
+                            </button>
+                            <span id="capital-page-num" class="font-extrabold text-pink-500 px-1">1 / 1</span>
+                            <button id="capital-next-btn" class="px-3 py-1.5 rounded-xl border border-pink-200 dark:border-slate-700 hover:bg-pink-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1 font-bold">
+                                Next <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="fixed inset-0 bg-pink-950/40 dark:bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-pink-100 dark:border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-pink-100 dark:border-slate-800 pb-3">
+                <h3 class="text-base font-extrabold text-slate-700 dark:text-slate-100">Edit Transaksi ✨</h3>
+                <button id="close-edit-modal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors w-8 h-8 rounded-full flex items-center justify-center bg-pink-50 dark:bg-slate-800"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <form id="edit-form" class="space-y-4">
+                <input type="hidden" id="edit-id">
+                
+                <div id="edit-type-wrapper">
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5">Jenis Transaksi</label>
+                    <select id="edit-type" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 font-semibold">
+                        <option value="modal">Modal Stok (Beli Robux)</option>
+                        <option value="operasional">Biaya Operasional</option>
+                        <option value="penjualan">Penjualan Robux</option>
+                    </select>
+                </div>
+
+                <div id="edit-status-wrapper">
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5" id="edit-status-label">Status Pembayaran</label>
+                    <select id="edit-status" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 font-semibold">
+                        <option value="Lunas">Lunas ✨</option>
+                        <option value="Belum Lunas">Belum Lunas / Piutang ⏳</option>
+                    </select>
+                </div>
+                <div id="edit-robux-wrapper">
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5" id="edit-robux-label">Jumlah Robux (R$)</label>
+                    <input type="text" id="edit-robux" inputmode="numeric" placeholder="Contoh: 1.000" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 font-semibold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5" id="edit-amount-label">Total Biaya/Harga (Rp)</label>
+                    <input type="text" id="edit-amount" inputmode="numeric" placeholder="Contoh: 100.000" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 font-semibold" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5" id="edit-party-label">Nama Pembeli</label>
+                    <input type="text" id="edit-party" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400 font-semibold" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-pink-400 mb-1.5">Catatan</label>
+                    <textarea id="edit-notes" rows="2" class="w-full bg-pink-50/50 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl px-3.5 py-2 text-xs text-slate-700 dark:text-slate-100 focus:outline-none focus:border-pink-400"></textarea>
+                </div>
+                <button type="submit" id="save-edit-btn" class="w-full bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-bold py-3 rounded-2xl text-xs transition shadow-md shadow-pink-200/50">Simpan Perubahan</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div id="custom-modal" class="fixed inset-0 bg-pink-950/40 dark:bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-pink-100 dark:border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
+            <div id="modal-icon" class="w-14 h-14 rounded-full bg-pink-100 dark:bg-slate-800 text-pink-500 flex items-center justify-center mx-auto text-xl shadow-inner">
+                <i class="fa-solid fa-heart"></i>
+            </div>
+            <h3 id="modal-title" class="text-base sm:text-lg font-extrabold text-slate-700 dark:text-slate-100">Informasi</h3>
+            <p id="modal-message" class="text-xs sm:text-sm text-slate-500">Pesan konfirmasi...</p>
+            <div id="modal-actions" class="flex gap-2 justify-center pt-2">
+                <button id="modal-ok-btn" class="bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white px-6 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition min-h-[40px] shadow-md">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flatpickr JS untuk Kalender Rentang -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        let transactionsData = [];
+        let ordersData = [];
+        let monthlyChart = null;
+        let comparisonChartInstance = null;
+        let currentAvailableStock = 0;
+        let suggestedReferenceAmount = 0;
+
+        let customPricePerRobux = 120;
+        let customIg = "@miyubox_";
+        let customTiktok = "tachibana.miyuka";
+        let customDiscord = "itsmiyuka";
+
+        let salesCurrentPage = 1;
+        let salesPageSize = 10;
+        let capitalCurrentPage = 1;
+        let capitalPageSize = 10;
+
+        let previousOrdersCount = 0;
+        let datePickerInstance = null;
+
+        // --- INISIALISASI FLATPICKR DATE RANGE ---
+        function initDateRangePicker(minDateStr = null, maxDateStr = null) {
+            const inputEl = document.getElementById('filter-date-range');
+            if (!inputEl) return;
+
+            if (datePickerInstance) {
+                if (minDateStr) datePickerInstance.set('minDate', minDateStr);
+                if (maxDateStr) datePickerInstance.set('maxDate', maxDateStr);
+                return;
+            }
+
+            datePickerInstance = flatpickr(inputEl, {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                locale: "id",
+                altInput: true,
+                altFormat: "j M Y",
+                minDate: minDateStr,
+                maxDate: maxDateStr,
+                onChange: function(selectedDates) {
+                    if (selectedDates.length === 2 || selectedDates.length === 1) {
+                        salesCurrentPage = 1;
+                        capitalCurrentPage = 1;
+                        renderApp();
+                    }
+                }
+            });
+        }
+        initDateRangePicker();
+
+        // --- SISTEM TOAST NOTIFICATION ---
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            
+            let bgIcon = 'bg-pink-100 text-pink-500 dark:bg-pink-950/60 dark:text-pink-400';
+            let iconClass = 'fa-solid fa-wand-magic-sparkles';
+            let borderColor = 'border-pink-200 dark:border-pink-800/60';
+
+            if (type === 'error') {
+                bgIcon = 'bg-rose-100 text-rose-500 dark:bg-rose-950/60 dark:text-rose-400';
+                iconClass = 'fa-solid fa-circle-exclamation';
+                borderColor = 'border-rose-200 dark:border-rose-800/60';
+            } else if (type === 'warning') {
+                bgIcon = 'bg-amber-100 text-amber-500 dark:bg-amber-950/60 dark:text-amber-400';
+                iconClass = 'fa-solid fa-triangle-exclamation';
+                borderColor = 'border-amber-200 dark:border-amber-800/60';
+            } else if (type === 'info') {
+                bgIcon = 'bg-sky-100 text-sky-500 dark:bg-sky-950/60 dark:text-sky-400';
+                iconClass = 'fa-solid fa-circle-info';
+                borderColor = 'border-sky-200 dark:border-sky-800/60';
+            }
+
+            toast.className = `pointer-events-auto bg-white/95 dark:bg-slate-900/95 backdrop-blur border ${borderColor} rounded-2xl p-3.5 shadow-2xl flex items-start gap-3 transform transition-all duration-300 translate-y-[-10px] opacity-0`;
+
+            toast.innerHTML = `
+                <div class="w-8 h-8 rounded-xl ${bgIcon} flex items-center justify-center flex-shrink-0 text-sm mt-0.5 shadow-inner">
+                    <i class="${iconClass}"></i>
+                </div>
+                <div class="flex-grow min-w-0 pr-1">
+                    <h4 class="text-xs font-extrabold text-slate-800 dark:text-slate-100">${title}</h4>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-semibold leading-tight mt-0.5">${message}</p>
+                </div>
+                <button class="close-toast text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-[-10px]', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+            });
+
+            const closeBtn = toast.querySelector('.close-toast');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => removeToast(toast));
+            }
+
+            setTimeout(() => {
+                removeToast(toast);
+            }, 3500);
+        }
+
+        function removeToast(toast) {
+            if (!toast || !toast.parentNode) return;
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-[-10px]', 'opacity-0');
+            setTimeout(() => {
+                if (toast.parentNode) toast.parentNode.removeChild(toast);
+            }, 300);
+        }
+
+        function showModal(title, message, isConfirm = false, onConfirm = null) {
+            if (!isConfirm) {
+                let type = 'success';
+                const lowerTitle = title.toLowerCase();
+                if (lowerTitle.includes('gagal') || lowerTitle.includes('tidak cukup')) type = 'error';
+                else if (lowerTitle.includes('perhatian') || lowerTitle.includes('informasi')) type = 'warning';
+
+                showToast(title, message, type);
+                return;
+            }
+
+            const modal = document.getElementById('custom-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalMsg = document.getElementById('modal-message');
+            const modalActions = document.getElementById('modal-actions');
+            if (modalTitle) modalTitle.textContent = title;
+            if (modalMsg) modalMsg.textContent = message;
+            if (modalActions) modalActions.innerHTML = '';
+
+            const btnCancel = document.createElement('button');
+            btnCancel.className = "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-4 py-2.5 rounded-2xl text-xs font-extrabold";
+            btnCancel.textContent = "Batal";
+            btnCancel.onclick = () => modal.classList.add('hidden');
+
+            const btnYes = document.createElement('button');
+            btnYes.className = "bg-rose-500 text-white px-4 py-2.5 rounded-2xl text-xs font-extrabold shadow-md";
+            btnYes.textContent = "Hapus";
+            btnYes.onclick = () => { modal.classList.add('hidden'); if (onConfirm) onConfirm(); };
+
+            modalActions.appendChild(btnCancel); 
+            modalActions.appendChild(btnYes);
+            modal.classList.remove('hidden');
+        }
+
+        function playChimeSound() {
+            try {
+                const audio = document.getElementById('notification-sound');
+                if (audio) {
+                    audio.currentTime = 0;
+                    audio.play().catch(e => {});
+                }
+            } catch(e) {}
+        }
+
+        const enableNotifBtn = document.getElementById('enable-notif-btn');
+        const enableNotifText = document.getElementById('enable-notif-text');
+
+        function checkNotificationPermission() {
+            if (!("Notification" in window)) {
+                if (enableNotifBtn) enableNotifBtn.style.display = 'none';
+                return;
+            }
+            if (Notification.permission === "granted") {
+                if (enableNotifText) enableNotifText.textContent = "Notifikasi & Audio: Aktif ✨";
+            } else if (Notification.permission === "denied") {
+                if (enableNotifText) enableNotifText.textContent = "Notifikasi Browser: Ditolak ❌";
+            }
+        }
+
+        if (enableNotifBtn) {
+            enableNotifBtn.addEventListener('click', () => {
+                playChimeSound();
+                if (!("Notification" in window)) return;
+                Notification.requestPermission().then(permission => {
+                    checkNotificationPermission();
+                    if (permission === "granted") {
+                        showModal("Berhasil ✨", "Notifikasi browser & audio chime berhasil diaktifkan!");
+                    }
+                });
+            });
+        }
+        checkNotificationPermission();
+
+        function triggerBrowserNotification(title, bodyText) {
+            playChimeSound();
+            if ("Notification" in window && Notification.permission === "granted") {
+                try {
+                    new Notification(title, { body: bodyText, icon: "miyu.jpg" });
+                } catch (e) {}
+            }
+        }
+
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const darkModeIcon = document.getElementById('dark-mode-icon');
+        const darkModeText = document.getElementById('dark-mode-text');
+        const htmlElement = document.documentElement;
+
+        function updateDarkModeUI(isDark) {
+            if (isDark) {
+                htmlElement.classList.add('dark');
+                if (darkModeIcon) darkModeIcon.className = "fa-solid fa-sun text-xs";
+                if (darkModeText) darkModeText.textContent = "Terang";
+            } else {
+                htmlElement.classList.remove('dark');
+                if (darkModeIcon) darkModeIcon.className = "fa-solid fa-moon text-xs";
+                if (darkModeText) darkModeText.textContent = "Tema";
+            }
+        }
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            updateDarkModeUI(true);
+        } else {
+            updateDarkModeUI(false);
+        }
+
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                const isCurrentlyDark = htmlElement.classList.contains('dark');
+                if (isCurrentlyDark) {
+                    updateDarkModeUI(false);
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    updateDarkModeUI(true);
+                    localStorage.setItem('theme', 'dark');
+                }
+                if (transactionsData.length > 0) renderApp();
+            });
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAQusHA5dauphJ7VWzJmyc8qZo3ZNcaMc",
+            authDomain: "roblox-5c49b.firebaseapp.com",
+            projectId: "roblox-5c49b",
+            storageBucket: "roblox-5c49b.firebasestorage.app",
+            messagingSenderId: "68820051942",
+            appId: "1:68820051942:web:766647acf9e3b1162e1827",
+            measurementId: "G-S9GS267SER"
+        };
+
+        let app, db, auth;
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (error) {}
+
+        const authView = document.getElementById('auth-view');
+        const authForm = document.getElementById('auth-form');
+        const authEmail = document.getElementById('auth-email');
+        const authPassword = document.getElementById('auth-password');
+        const authSubmitBtn = document.getElementById('auth-submit-btn');
+        const userEmailDisplay = document.getElementById('user-email-display');
+        const logoutBtn = document.getElementById('logout-btn');
+        const openLoginBtn = document.getElementById('open-login-btn');
+        const closeAuthModal = document.getElementById('close-auth-modal');
+        const adminControls = document.getElementById('admin-controls');
+        const adminUserControls = document.getElementById('admin-user-controls');
+        const guestControls = document.getElementById('guest-controls');
+        const adminView = document.getElementById('admin-view');
+        const guestView = document.getElementById('guest-view');
+
+        const notifBtn = document.getElementById('notif-btn');
+        const notifBadge = document.getElementById('notif-badge');
+        const notifModal = document.getElementById('notif-modal');
+        const closeNotifModal = document.getElementById('close-notif-modal');
+        const notifListContainer = document.getElementById('notif-list-container');
+
+        const settingsModal = document.getElementById('settings-modal');
+        const openSettingsBtn = document.getElementById('open-settings-btn');
+        const closeSettingsModal = document.getElementById('close-settings-modal');
+        const adminRobuxRate = document.getElementById('admin-robux-rate');
+        const adminIgInput = document.getElementById('admin-ig');
+        const adminTiktokInput = document.getElementById('admin-tiktok');
+        const adminDiscordInput = document.getElementById('admin-discord');
+        const saveRateBtn = document.getElementById('save-rate-btn');
+
+        const orderModal = document.getElementById('order-modal');
+        const openOrderModalBtn = document.getElementById('open-order-modal-btn');
+        const closeOrderModalBtn = document.getElementById('close-order-modal');
+
+        if (openOrderModalBtn) openOrderModalBtn.addEventListener('click', () => orderModal.classList.remove('hidden'));
+        if (closeOrderModalBtn) closeOrderModalBtn.addEventListener('click', () => orderModal.classList.add('hidden'));
+
+        const qrisClickable = document.getElementById('qris-clickable');
+        const qrisLightbox = document.getElementById('qris-lightbox');
+        const closeQrisLightbox = document.getElementById('close-qris-lightbox');
+
+        if (qrisClickable && qrisLightbox) {
+            qrisClickable.addEventListener('click', () => qrisLightbox.classList.remove('hidden'));
+            qrisLightbox.addEventListener('click', () => qrisLightbox.classList.add('hidden'));
+            if (closeQrisLightbox) {
+                closeQrisLightbox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    qrisLightbox.classList.add('hidden');
+                });
+            }
+        }
+
+        const proofLightbox = document.getElementById('proof-lightbox');
+        const proofZoomImg = document.getElementById('proof-zoom-img');
+        const closeProofLightbox = document.getElementById('close-proof-lightbox');
+
+        if (proofLightbox) {
+            proofLightbox.addEventListener('click', () => proofLightbox.classList.add('hidden'));
+            if (closeProofLightbox) {
+                closeProofLightbox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    proofLightbox.classList.add('hidden');
+                });
+            }
+        }
+
+        const orderForm = document.getElementById('order-form');
+        const orderName = document.getElementById('order-name');
+        const orderRobux = document.getElementById('order-robux');
+        const orderNotes = document.getElementById('order-notes');
+        const orderPaymentMethod = document.getElementById('order-payment-method');
+        const qrisImageContainer = document.getElementById('qris-image-container');
+        const bayarNantiNotice = document.getElementById('bayar-nanti-notice');
+        const orderProofFile = document.getElementById('order-proof-file');
+        const orderEstPrice = document.getElementById('order-est-price');
+        const guestStockDisplay = document.getElementById('guest-stock-display');
+
+        if (orderPaymentMethod) {
+            orderPaymentMethod.addEventListener('change', (e) => {
+                const val = e.target.value;
+                if (val === 'Transfer QRIS') {
+                    if (qrisImageContainer) qrisImageContainer.classList.remove('hidden');
+                    if (bayarNantiNotice) bayarNantiNotice.classList.add('hidden');
+                } else if (val === 'Bayar Nanti') {
+                    if (qrisImageContainer) qrisImageContainer.classList.add('hidden');
+                    if (bayarNantiNotice) bayarNantiNotice.classList.remove('hidden');
+                }
+            });
+        }
+
+        const form = document.getElementById('transaction-form');
+        const txType = document.getElementById('tx-type');
+        const labelAmount = document.getElementById('label-amount');
+        const labelParty = document.getElementById('label-party');
+        const labelStatus = document.getElementById('label-status');
+        const txStatus = document.getElementById('tx-status');
+        const txParty = document.getElementById('tx-party');
+        const partySuggestions = document.getElementById('party-suggestions');
+        const txDate = document.getElementById('tx-date');
+        const txRobuxInput = document.getElementById('tx-robux');
+        const txAmountInput = document.getElementById('tx-amount');
+        const stockHint = document.getElementById('stock-hint');
+        const applyReferenceBtn = document.getElementById('apply-reference-btn');
+        const robuxFieldWrapper = document.getElementById('robux-field-wrapper');
+        const salesExtraFields = document.getElementById('sales-extra-fields');
+        const discountHint = document.getElementById('discount-hint');
+
+        // --- FITUR LIVE SEARCH / AUTOCOMPLETE NAMA PEMBELI ---
+        function getUniquePartyNames() {
+            const namesSet = new Set();
+            transactionsData.forEach(item => {
+                if (item.party && item.party.trim() !== '') {
+                    namesSet.add(item.party.trim());
+                }
+            });
+            ordersData.forEach(order => {
+                if (order.name && order.name.trim() !== '') {
+                    namesSet.add(order.name.trim());
+                }
+            });
+            return Array.from(namesSet).sort();
+        }
+
+        if (txParty && partySuggestions) {
+            txParty.addEventListener('input', () => {
+                const keyword = txParty.value.toLowerCase().trim();
+                if (!keyword) {
+                    partySuggestions.classList.add('hidden');
+                    partySuggestions.innerHTML = '';
+                    return;
+                }
+
+                const allNames = getUniquePartyNames();
+                const matched = allNames.filter(name => name.toLowerCase().includes(keyword));
+
+                if (matched.length === 0) {
+                    partySuggestions.classList.add('hidden');
+                    partySuggestions.innerHTML = '';
+                    return;
+                }
+
+                partySuggestions.innerHTML = '';
+                matched.forEach(name => {
+                    const div = document.createElement('div');
+                    div.className = "px-4 py-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-200 hover:bg-pink-100 dark:hover:bg-slate-800 cursor-pointer font-semibold transition";
+                    div.textContent = name;
+                    div.addEventListener('click', () => {
+                        txParty.value = name;
+                        partySuggestions.classList.add('hidden');
+                        partySuggestions.innerHTML = '';
+                    });
+                    partySuggestions.appendChild(div);
+                });
+                partySuggestions.classList.remove('hidden');
+            });
+
+            // Sembunyikan saran jika klik di luar
+            document.addEventListener('click', (e) => {
+                if (!txParty.contains(e.target) && !partySuggestions.contains(e.target)) {
+                    partySuggestions.classList.add('hidden');
+                }
+            });
+        }
+
+        const toggleFormBtn = document.getElementById('toggle-form-btn');
+        const txFormCard = document.getElementById('transaction-form-card');
+        const toggleIcon = document.getElementById('toggle-icon');
+        const toggleText = document.getElementById('toggle-text');
+
+        if (toggleFormBtn && txFormCard) {
+            toggleFormBtn.addEventListener('click', () => {
+                const isHidden = txFormCard.classList.contains('hidden');
+                if (isHidden) {
+                    txFormCard.classList.remove('hidden');
+                    if (toggleIcon) toggleIcon.className = "fa-solid fa-xmark text-xs";
+                    if (toggleText) toggleText.textContent = "Tutup Form Transaksi";
+                } else {
+                    txFormCard.classList.add('hidden');
+                    if (toggleIcon) toggleIcon.className = "fa-solid fa-plus text-xs";
+                    if (toggleText) toggleText.textContent = "Buka Form Tambah Transaksi";
+                }
+            });
+        }
+        
+        const salesTableBody = document.getElementById('sales-table-body');
+        const capitalTableBody = document.getElementById('capital-table-body');
+        const searchSales = document.getElementById('search-sales');
+        const searchCapital = document.getElementById('search-capital');
+        
+        const filterStatus = document.getElementById('filter-status');
+        const resetFilterBtn = document.getElementById('reset-filter-btn');
+        const exportCsvBtn = document.getElementById('export-csv-btn');
+
+        const tabSalesBtn = document.getElementById('tab-sales-btn');
+        const tabCapitalBtn = document.getElementById('tab-capital-btn');
+        const salesTableCard = document.getElementById('sales-table-card');
+        const capitalTableCard = document.getElementById('capital-table-card');
+
+        const salesPageSizeSelect = document.getElementById('sales-page-size');
+        const salesPrevBtn = document.getElementById('sales-prev-btn');
+        const salesNextBtn = document.getElementById('sales-next-btn');
+        const salesPageNum = document.getElementById('sales-page-num');
+        const salesInfo = document.getElementById('sales-info');
+
+        const capitalPageSizeSelect = document.getElementById('capital-page-size');
+        const capitalPrevBtn = document.getElementById('capital-prev-btn');
+        const capitalNextBtn = document.getElementById('capital-next-btn');
+        const capitalPageNum = document.getElementById('capital-page-num');
+        const capitalInfo = document.getElementById('capital-info');
+
+        if (salesPageSizeSelect) {
+            salesPageSizeSelect.addEventListener('change', (e) => {
+                salesPageSize = parseInt(e.target.value, 10);
+                salesCurrentPage = 1;
+                renderApp();
+            });
+        }
+        if (salesPrevBtn) {
+            salesPrevBtn.addEventListener('click', () => {
+                if (salesCurrentPage > 1) { salesCurrentPage--; renderApp(); }
+            });
+        }
+        if (salesNextBtn) {
+            salesNextBtn.addEventListener('click', () => { salesCurrentPage++; renderApp(); });
+        }
+
+        if (capitalPageSizeSelect) {
+            capitalPageSizeSelect.addEventListener('change', (e) => {
+                capitalPageSize = parseInt(e.target.value, 10);
+                capitalCurrentPage = 1;
+                renderApp();
+            });
+        }
+        if (capitalPrevBtn) {
+            capitalPrevBtn.addEventListener('click', () => {
+                if (capitalCurrentPage > 1) { capitalCurrentPage--; renderApp(); }
+            });
+        }
+        if (capitalNextBtn) {
+            capitalNextBtn.addEventListener('click', () => { capitalCurrentPage++; renderApp(); });
+        }
+
+        const editModal = document.getElementById('edit-modal');
+        const closeEditModal = document.getElementById('close-edit-modal');
+        const editForm = document.getElementById('edit-form');
+        const editId = document.getElementById('edit-id');
+        const editType = document.getElementById('edit-type');
+        const editStatus = document.getElementById('edit-status');
+        const editParty = document.getElementById('edit-party');
+        const editNotes = document.getElementById('edit-notes');
+        const editRobux = document.getElementById('edit-robux');
+        const editAmount = document.getElementById('edit-amount');
+        const editRobuxWrapper = document.getElementById('edit-robux-wrapper');
+
+        if (closeEditModal) closeEditModal.addEventListener('click', () => editModal.classList.add('hidden'));
+        if (closeNotifModal) closeNotifModal.addEventListener('click', () => notifModal.classList.add('hidden'));
+        if (notifBtn) notifBtn.addEventListener('click', () => notifModal.classList.remove('hidden'));
+        if (openLoginBtn) openLoginBtn.addEventListener('click', () => authView.classList.remove('hidden'));
+        if (closeAuthModal) closeAuthModal.addEventListener('click', () => authView.classList.add('hidden'));
+        if (openSettingsBtn) openSettingsBtn.addEventListener('click', () => settingsModal.classList.remove('hidden'));
+        if (closeSettingsModal) closeSettingsModal.addEventListener('click', () => settingsModal.classList.add('hidden'));
+
+        if (tabSalesBtn && tabCapitalBtn) {
+            tabSalesBtn.addEventListener('click', () => {
+                salesTableCard.classList.remove('hidden');
+                capitalTableCard.classList.add('hidden');
+                tabSalesBtn.className = "flex-1 py-2.5 rounded-xl text-xs font-extrabold transition text-white bg-gradient-to-r from-pink-400 to-purple-400 shadow-md flex items-center justify-center gap-1.5";
+                tabCapitalBtn.className = "flex-1 py-2.5 rounded-xl text-xs font-extrabold transition text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center justify-center gap-1.5";
+            });
+            tabCapitalBtn.addEventListener('click', () => {
+                capitalTableCard.classList.remove('hidden');
+                salesTableCard.classList.add('hidden');
+                tabCapitalBtn.className = "flex-1 py-2.5 rounded-xl text-xs font-extrabold transition text-white bg-gradient-to-r from-pink-400 to-purple-400 shadow-md flex items-center justify-center gap-1.5";
+                tabSalesBtn.className = "flex-1 py-2.5 rounded-xl text-xs font-extrabold transition text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center justify-center gap-1.5";
+            });
+        }
+
+        function setDefaultDateTime() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            if (txDate) txDate.value = now.toISOString().slice(0, 16);
+        }
+        setDefaultDateTime();
+
+        function setupThousandSeparator(inputElement, callback = null) {
+            if (!inputElement) return;
+            inputElement.addEventListener('input', () => {
+                let cursorPosition = inputElement.selectionStart;
+                let originalLength = inputElement.value.length;
+                let rawValue = inputElement.value.replace(/\D/g, '');
+                if (rawValue === '') {
+                    inputElement.value = '';
+                    if (callback) callback(0);
+                    return;
+                }
+                let numberValue = parseInt(rawValue, 10);
+                let formattedValue = numberValue.toLocaleString('id-ID');
+                inputElement.value = formattedValue;
+                cursorPosition = cursorPosition + (formattedValue.length - originalLength);
+                try { inputElement.setSelectionRange(Math.max(0, cursorPosition), Math.max(0, cursorPosition)); } catch (err) {}
+                if (callback) callback(numberValue);
+            });
+        }
+
+        setupThousandSeparator(txRobuxInput, () => updatePriceReference());
+        setupThousandSeparator(txAmountInput);
+        setupThousandSeparator(editRobux);
+        setupThousandSeparator(editAmount);
+        setupThousandSeparator(adminRobuxRate);
+
+        function updateGuestEstimatePrice() {
+            if (!orderRobux) return;
+            const val = parseFormattedNumber(orderRobux.value);
+            let est = Math.round(val * customPricePerRobux);
+            if (val >= 5000) est = est * 0.95;
+            if (orderEstPrice) orderEstPrice.textContent = formatRupiah(est);
+        }
+        setupThousandSeparator(orderRobux, () => updateGuestEstimatePrice());
+
+        document.querySelectorAll('.quick-robux-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const val = parseInt(e.currentTarget.getAttribute('data-val'), 10);
+                if (orderRobux) {
+                    orderRobux.value = val.toLocaleString('id-ID');
+                    updateGuestEstimatePrice();
+                }
+            });
+        });
+
+        function parseFormattedNumber(strValue) {
+            if (typeof strValue === 'number') return strValue;
+            if (!strValue) return 0;
+            return Number(String(strValue).replace(/\./g, '').replace(/,/g, '')) || 0;
+        }
+
+        function getPricePerRobux() {
+            let totalModalRobux = 0;
+            let totalModalAmount = 0;
+            transactionsData.forEach(item => {
+                if (item.type === 'modal' && item.status !== 'pending') {
+                    totalModalRobux += parseFormattedNumber(item.robux);
+                    totalModalAmount += parseFormattedNumber(item.amount);
+                }
+            });
+            if (totalModalRobux > 0) return totalModalAmount / totalModalRobux;
+            return 1900000 / 10000;
+        }
+
+        function updatePriceReference() {
+            if (!txRobuxInput || !txAmountInput) return;
+            if (txType.value === 'operasional') return;
+            const robuxVal = parseFormattedNumber(txRobuxInput.value);
+            if (robuxVal > 0) {
+                const rate = getPricePerRobux();
+                let baseAmount = robuxVal * rate;
+                if (robuxVal >= 5000 && txType.value === 'penjualan') {
+                    baseAmount = baseAmount * 0.95;
+                    if (discountHint) discountHint.classList.remove('hidden');
+                } else {
+                    if (discountHint) discountHint.classList.add('hidden');
+                }
+                suggestedReferenceAmount = Math.round(baseAmount);
+                txAmountInput.placeholder = `Acuan: Rp ${suggestedReferenceAmount.toLocaleString('id-ID')}`;
+                if (applyReferenceBtn) applyReferenceBtn.classList.remove('hidden');
+            } else {
+                suggestedReferenceAmount = 0;
+                txAmountInput.placeholder = 'Contoh: 100.000';
+                if (applyReferenceBtn) applyReferenceBtn.classList.add('hidden');
+                if (discountHint) discountHint.classList.add('hidden');
+            }
+        }
+
+        if (applyReferenceBtn) {
+            applyReferenceBtn.addEventListener('click', () => {
+                if (suggestedReferenceAmount > 0) txAmountInput.value = suggestedReferenceAmount.toLocaleString('id-ID');
+            });
+        }
+
+        function updateSocialMediaUI(ig, tiktok, discord) {
+            const displayIgText = document.getElementById('display-ig-text');
+            const displayIgLink = document.getElementById('display-ig-link');
+            const displayTiktokText = document.getElementById('display-tiktok-text');
+            const displayTiktokLink = document.getElementById('display-tiktok-link');
+            const displayDiscordText = document.getElementById('display-discord-text');
+
+            if (displayIgText) displayIgText.textContent = ig;
+            if (displayIgLink) displayIgLink.href = `https://instagram.com/${ig.replace('@', '')}`;
+            if (displayTiktokText) displayTiktokText.textContent = tiktok;
+            if (displayTiktokLink) displayTiktokLink.href = `https://tiktok.com/@${tiktok.replace('@', '')}`;
+            if (displayDiscordText) displayDiscordText.textContent = discord;
+        }
+
+        if (saveRateBtn) {
+            saveRateBtn.addEventListener('click', async () => {
+                if (!db) return;
+                const newRate = parseFormattedNumber(adminRobuxRate.value);
+                const newIg = adminIgInput ? adminIgInput.value.trim() : "@miyubox_";
+                const newTiktok = adminTiktokInput ? adminTiktokInput.value.trim() : "tachibana.miyuka";
+                const newDiscord = adminDiscordInput ? adminDiscordInput.value.trim() : "itsmiyuka";
+
+                if (newRate <= 0) { showModal("Perhatian", "Masukkan nominal harga Robux yang valid."); return; }
+                saveRateBtn.disabled = true;
+                saveRateBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Menyimpan...`;
+
+                try {
+                    await setDoc(doc(db, "settings", "pricing"), {
+                        pricePerRobux: newRate, ig: newIg, tiktok: newTiktok, discord: newDiscord, updatedAt: new Date().toISOString()
+                    }, { merge: true });
+                    settingsModal.classList.add('hidden');
+                    showModal("Berhasil ✨", "Pengaturan toko berhasil diperbarui!");
+                } catch (err) {
+                    showModal("Gagal", "Terjadi kesalahan saat menyimpan pengaturan.");
+                } finally {
+                    saveRateBtn.disabled = false;
+                    saveRateBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan`;
+                }
+            });
+        }
+
+        if (authForm) {
+            authForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = authEmail.value.trim();
+                const password = authPassword.value;
+                authSubmitBtn.disabled = true;
+                authSubmitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Memproses...`;
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showModal("Berhasil 💖", "Berhasil masuk ke dashboard!");
+                    authView.classList.add('hidden');
+                } catch (err) {
+                    showModal("Gagal", err.message || "Terjadi kesalahan otentikasi.");
+                } finally {
+                    authSubmitBtn.disabled = false;
+                    authSubmitBtn.innerHTML = `<i class="fa-solid fa-heart"></i> Masuk Dashboard`;
+                }
+            });
+        }
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async () => {
+                try { await signOut(auth); showModal("Informasi", "Anda telah keluar dari sesi admin."); } catch (err) {}
+            });
+        }
+
+        if (auth) {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    if (authView) authView.classList.add('hidden');
+                    if (adminControls) { adminControls.classList.remove('hidden'); adminControls.classList.add('flex'); }
+                    if (adminUserControls) { adminUserControls.classList.remove('hidden'); adminUserControls.classList.add('flex'); }
+                    if (guestControls) guestControls.classList.add('hidden');
+                    if (adminView) adminView.classList.remove('hidden');
+                    if (guestView) guestView.classList.add('hidden');
+                    if (userEmailDisplay) userEmailDisplay.textContent = user.email;
+                } else {
+                    if (adminControls) { adminControls.classList.add('hidden'); adminControls.classList.remove('flex'); }
+                    if (adminUserControls) { adminUserControls.classList.add('hidden'); adminUserControls.classList.remove('flex'); }
+                    if (guestControls) guestControls.classList.remove('hidden');
+                    if (adminView) adminView.classList.add('hidden');
+                    if (guestView) guestView.classList.remove('hidden');
+                }
+            });
+        }
+
+function initRealtimeData() {
+            if (db) {
+                // 1. Settings / Pricing selalu bisa dibaca siapa saja
+                onSnapshot(doc(db, "settings", "pricing"), (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        customPricePerRobux = Number(data.pricePerRobux || 120);
+                        customIg = data.ig || "@miyubox_";
+                        customTiktok = data.tiktok || "tachibana.miyuka";
+                        customDiscord = data.discord || "itsmiyuka";
+                    } else {
+                        customPricePerRobux = 120; customIg = "@miyubox_"; customTiktok = "tachibana.miyuka"; customDiscord = "itsmiyuka";
+                    }
+                    if (adminRobuxRate) adminRobuxRate.value = customPricePerRobux.toLocaleString('id-ID');
+                    if (adminIgInput) adminIgInput.value = customIg;
+                    if (adminTiktokInput) adminTiktokInput.value = customTiktok;
+                    if (adminDiscordInput) adminDiscordInput.value = customDiscord;
+                    updateSocialMediaUI(customIg, customTiktok, customDiscord);
+                    updateGuestEstimatePrice();
+                });
+
+                // 2. Transactions dibaca publik agar perhitungan Stok Ready di halaman tamu & admin selalu akurat
+                onSnapshot(query(collection(db, "transactions")), (snapshot) => {
+                    transactionsData = [];
+                    snapshot.forEach((docSnap) => transactionsData.push({ id: docSnap.id, ...docSnap.data() }));
+                    renderApp();
+                });
+
+                // 3. Orders khusus dipantau jika user login sebagai admin (untuk notifikasi order masuk)
+                if (auth) {
+                    onAuthStateChanged(auth, (user) => {
+                        if (user) {
+                            onSnapshot(query(collection(db, "orders")), (snapshot) => {
+                                ordersData = [];
+                                snapshot.forEach((docSnap) => ordersData.push({ id: docSnap.id, ...docSnap.data() }));
+                                renderOrdersNotification();
+                            });
+                        } else {
+                            ordersData = [];
+                            renderOrdersNotification();
+                        }
+                    });
+                }
+            }
+        }
+        initRealtimeData();
+
+        function resizeImageToMax1MB(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        const maxDimension = 900;
+                        if (width > height) {
+                            if (width > maxDimension) {
+                                height = Math.round((height * maxDimension) / width);
+                                width = maxDimension;
+                            }
+                        } else {
+                            if (height > maxDimension) {
+                                width = Math.round((width * maxDimension) / height);
+                                height = maxDimension;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        let quality = 0.8;
+                        let dataUrl = canvas.toDataURL('image/jpeg', quality);
+                        
+                        while (dataUrl.length > 1024 * 1024 * 1.33 && quality > 0.3) {
+                            quality -= 0.1;
+                            dataUrl = canvas.toDataURL('image/jpeg', quality);
+                        }
+                        resolve(dataUrl);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        if (orderForm) {
+            orderForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!db) return;
+                const robuxVal = parseFormattedNumber(orderRobux.value);
+                if (robuxVal <= 0) { showModal("Perhatian", "Jumlah Robux harus diisi dengan benar."); return; }
+                const orderSubmitBtn = document.getElementById('order-submit-btn');
+                const paymentMethod = orderPaymentMethod ? orderPaymentMethod.value : 'Bayar Nanti';
+                
+                orderSubmitBtn.disabled = true;
+                orderSubmitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Mengirim Order...`;
+
+                let proofBase64 = null;
+                if (orderProofFile && orderProofFile.files && orderProofFile.files[0]) {
+                    try {
+                        proofBase64 = await resizeImageToMax1MB(orderProofFile.files[0]);
+                    } catch (err) {}
+                }
+
+                const newOrder = { 
+                    name: orderName.value.trim(), 
+                    robux: robuxVal, 
+                    method: paymentMethod,
+                    notes: orderNotes.value.trim(), 
+                    proofImage: proofBase64,
+                    createdAt: new Date().toISOString() 
+                };
+
+                try {
+                    await addDoc(collection(db, "orders"), newOrder);
+                    orderForm.reset();
+                    if (orderEstPrice) orderEstPrice.textContent = "Rp 0";
+                    if (orderPaymentMethod) orderPaymentMethod.value = "Bayar Nanti";
+                    if (qrisImageContainer) qrisImageContainer.classList.add('hidden');
+                    if (bayarNantiNotice) bayarNantiNotice.classList.remove('hidden');
+                    if (orderModal) orderModal.classList.add('hidden');
+                    
+                    let successMsg = "Order Robux kamu berhasil dikirim! Silakan tunggu konfirmasi admin.";
+                    if (paymentMethod === 'Bayar Nanti') {
+                        successMsg = "Order berhasil dikirim! Kirim DM ke sosmed admin yaa, agar orderannya cepat diproses.";
+                    }
+                    showModal("Berhasil 🎉", successMsg);
+                } catch (err) {
+                    showModal("Gagal", "Terjadi kesalahan saat mengirim order.");
+                } finally {
+                    orderSubmitBtn.disabled = false;
+                    orderSubmitBtn.innerHTML = `<i class="fa-solid fa-heart"></i> Kirim Order Sekarang`;
+                }
+            });
+        }
+
+        if (txType) {
+            txType.addEventListener('change', (e) => {
+                const val = e.target.value;
+                if (val === 'penjualan') {
+                    labelAmount.textContent = 'Total Harga Jual (Rp)';
+                    labelParty.textContent = 'Nama Pembeli';
+                    labelStatus.textContent = 'Status Pembayaran';
+                    if (txStatus) txStatus.innerHTML = `<option value="Lunas">Lunas ✨</option><option value="Belum Lunas">Belum Lunas / Piutang ⏳</option>`;
+                    txParty.placeholder = 'Nama pembeli / pelanggan';
+                    robuxFieldWrapper.classList.remove('hidden'); txRobuxInput.required = true; salesExtraFields.classList.remove('hidden');
+                } else if (val === 'modal') {
+                    labelAmount.textContent = 'Total Harga Modal/Beli (Rp)';
+                    labelParty.textContent = 'Nama Supplier / Sumber';
+                    labelStatus.textContent = 'Status Pembelian';
+                    if (txStatus) txStatus.innerHTML = `<option value="success">Success / Diterima ✨</option><option value="pending">Pending / Menunggu ⏳</option>`;
+                    txParty.placeholder = 'Nama supplier robux';
+                    robuxFieldWrapper.classList.remove('hidden'); txRobuxInput.required = true; salesExtraFields.classList.add('hidden');
+                } else if (val === 'operasional') {
+                    labelAmount.textContent = 'Total Biaya Operasional (Rp)';
+                    labelParty.textContent = 'Keperluan / Toko / Penerima';
+                    labelStatus.textContent = 'Status Pengeluaran';
+                    if (txStatus) txStatus.innerHTML = `<option value="Lunas">Lunas ✨</option><option value="Belum Lunas">Belum Lunas ⏳</option>`;
+                    txParty.placeholder = 'Contoh: Beli kuota / ATK';
+                    robuxFieldWrapper.classList.add('hidden'); txRobuxInput.required = false; txRobuxInput.value = ''; salesExtraFields.classList.add('hidden');
+                }
+                updatePriceReference();
+            });
+        }
+
+        if (editType) {
+            editType.addEventListener('change', (e) => {
+                const val = e.target.value;
+                if (val === 'operasional') {
+                    if (editRobuxWrapper) editRobuxWrapper.classList.add('hidden');
+                    if (editRobux) editRobux.value = '';
+                } else {
+                    if (editRobuxWrapper) editRobuxWrapper.classList.remove('hidden');
+                }
+            });
+        }
+
+        function formatRupiah(number) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number); }
+        function formatRobux(number) { return new Intl.NumberFormat('id-ID').format(number) + " R$"; }
+        function formatDateTimeDisplay(dateString) {
+            if (!dateString) return '-';
+            const d = new Date(dateString);
+            if (isNaN(d)) return dateString;
+            return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function updateDateFilterBounds() {
+            if (!transactionsData || transactionsData.length === 0) return;
+            let dates = transactionsData.map(item => item.date ? item.date.substring(0, 10) : '').filter(d => d !== '');
+            if (dates.length === 0) return;
+            dates.sort();
+            const minDate = dates[0];
+            const maxDate = dates[dates.length - 1];
+            initDateRangePicker(minDate, maxDate);
+        }
+
+        function getFilteredData() {
+            let startDate = null;
+            let endDate = null;
+
+            if (datePickerInstance && datePickerInstance.selectedDates.length > 0) {
+                startDate = datePickerInstance.selectedDates[0];
+                if (datePickerInstance.selectedDates.length > 1) {
+                    endDate = datePickerInstance.selectedDates[1];
+                } else {
+                    endDate = startDate;
+                }
+            }
+
+            const selectedStatus = filterStatus ? filterStatus.value : 'all';
+
+            return transactionsData.filter(item => {
+                const itemDate = new Date(item.date);
+                if (startDate && itemDate < new Date(startDate.setHours(0,0,0,0))) return false;
+                if (endDate) {
+                    const endLimit = new Date(endDate); 
+                    endLimit.setHours(23, 59, 59, 999);
+                    if (itemDate > endLimit) return false;
+                }
+                if (selectedStatus !== 'all') {
+                    if (selectedStatus === 'Lunas' && item.status !== 'Lunas' && item.status !== 'success') return false;
+                    if (selectedStatus === 'Belum Lunas' && item.status !== 'Belum Lunas' && item.status !== 'pending') return false;
+                }
+                return true;
+            });
+        }
+
+        function renderCharts(filteredData) {
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#94a3b8' : '#64748b';
+            const gridColor = isDark ? '#334155' : '#f1f5f9';
+            const baseRate = getPricePerRobux();
+
+            let startDateVal = null;
+            let endDateVal = null;
+            if (datePickerInstance && datePickerInstance.selectedDates.length > 0) {
+                startDateVal = datePickerInstance.selectedDates[0];
+                endDateVal = datePickerInstance.selectedDates[1] || startDateVal;
+            }
+            
+            let isDailyOrWeekly = false;
+            if (startDateVal && endDateVal) {
+                const diffTime = Math.abs(endDateVal - startDateVal);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays <= 31) {
+                    isDailyOrWeekly = true;
+                }
+            }
+
+            const chartDataMap = {};
+            
+            filteredData.forEach(item => {
+                if (!item.date) return;
+                
+                let key = item.date.substring(0, 7);
+                if (isDailyOrWeekly) {
+                    key = item.date.substring(0, 10);
+                }
+
+                if (!chartDataMap[key]) {
+                    chartDataMap[key] = { revenue: 0, cogs: 0, profit: 0 };
+                }
+                
+                const amt = parseFormattedNumber(item.amount);
+                const rbx = parseFormattedNumber(item.robux);
+                if (item.type === 'penjualan' && item.status !== 'Belum Lunas') {
+                    chartDataMap[key].revenue += amt;
+                    const itemCogs = rbx * baseRate;
+                    chartDataMap[key].cogs += itemCogs;
+                    chartDataMap[key].profit += (amt - itemCogs);
+                }
+            });
+
+            const sortedKeys = Object.keys(chartDataMap).sort();
+            const revs = sortedKeys.map(k => chartDataMap[k].revenue);
+            const cogs = sortedKeys.map(k => chartDataMap[k].cogs);
+            const profs = sortedKeys.map(k => chartDataMap[k].profit);
+
+            const trendCanvas = document.getElementById('monthlyTrendChart');
+            if (trendCanvas) {
+                if (monthlyChart) monthlyChart.destroy();
+                
+                const chartTitleEl = trendCanvas.closest('.bg-white, .dark\\:bg-slate-900')?.querySelector('h2');
+                if (chartTitleEl) {
+                    chartTitleEl.innerHTML = `<i class="fa-solid fa-chart-line text-pink-400"></i> ${isDailyOrWeekly ? 'Tren Keuangan Harian/Mingguan' : 'Tren Keuangan Bulanan'}`;
+                }
+
+                monthlyChart = new Chart(trendCanvas.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: sortedKeys.length ? sortedKeys : ['Tidak ada data pada rentang ini'],
+                        datasets: [
+                            { label: 'Pendapatan Jual', data: revs.length ? revs : [0], borderColor: '#34d399', backgroundColor: 'rgba(52, 211, 153, 0.1)', fill: true, tension: 0.4 },
+                            { label: 'Modal Terjual (HPP)', data: cogs.length ? cogs : [0], borderColor: '#fb7185', backgroundColor: 'rgba(251, 113, 133, 0.1)', fill: true, tension: 0.4 },
+                            { label: 'Profit Bersih', data: profs.length ? profs : [0], borderColor: '#c084fc', backgroundColor: 'rgba(192, 132, 252, 0.1)', fill: true, tension: 0.4 }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: textColor, font: { family: 'Nunito', size: 10, weight: 'bold' } } } },
+                        scales: {
+                            x: { ticks: { color: textColor, font: { size: 9, weight: 'bold' } }, grid: { color: gridColor } },
+                            y: { ticks: { color: textColor, font: { size: 9, weight: 'bold' } }, grid: { color: gridColor } }
+                        }
+                    }
+                });
+            }
+
+            let totalRev = 0; let totalCogs = 0;
+            filteredData.forEach(item => {
+                if (item.type === 'penjualan' && item.status !== 'Belum Lunas') {
+                    totalRev += parseFormattedNumber(item.amount);
+                    totalCogs += (parseFormattedNumber(item.robux) * baseRate);
+                }
+            });
+
+            const pieCanvas = document.getElementById('comparisonChart');
+            if (pieCanvas) {
+                if (comparisonChartInstance) comparisonChartInstance.destroy();
+                comparisonChartInstance = new Chart(pieCanvas.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Pendapatan', 'Modal Terjual (HPP)'],
+                        datasets: [{ data: [totalRev, totalCogs], backgroundColor: ['#34d399', '#fb7185'], borderWidth: 0 }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { family: 'Nunito', size: 10, weight: 'bold' } } } }
+                    }
+                });
+            }
+        }
+
+        function renderOrdersNotification() {
+            if (!notifBadge || !notifListContainer) return;
+            if (ordersData.length > previousOrdersCount && previousOrdersCount !== 0) {
+                const latestOrder = ordersData[ordersData.length - 1];
+                if (latestOrder) {
+                    triggerBrowserNotification("Order Robux Baru! ✨", `${latestOrder.name} memesan ${formatRobux(latestOrder.robux)}`);
+                   // showToast("Order Baru Masuk! 🎉", `${latestOrder.name} memesan ${formatRobux(latestOrder.robux)} (${latestOrder.method || 'Bayar Nanti'})`, "success");
+                }
+            }
+            previousOrdersCount = ordersData.length;
+
+            if (ordersData.length > 0) {
+                notifBadge.textContent = ordersData.length; notifBadge.classList.remove('hidden');
+                notifListContainer.innerHTML = '';
+                ordersData.forEach(order => {
+                    const div = document.createElement('div');
+                    div.className = "bg-pink-50/60 dark:bg-slate-800/80 border border-pink-200 dark:border-slate-700 rounded-2xl p-3 flex flex-col gap-3";
+                    
+                    let proofHtml = '';
+                    if (order.proofImage) {
+                        proofHtml = `
+                            <div class="mt-2">
+                                <p class="text-[10px] font-bold text-pink-500 mb-1">Bukti Pembayaran (Klik untuk memperbesar):</p>
+                                <div class="w-20 h-20 rounded-xl overflow-hidden border border-pink-200 dark:border-slate-700 shadow-sm cursor-pointer hover:scale-105 transition group relative zoom-proof-trigger" data-img="${order.proofImage}">
+                                    <img src="${order.proofImage}" alt="Bukti Pembayaran" class="w-full h-full object-cover">
+                                    <div class="absolute inset-0 bg-pink-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <span class="bg-white/90 text-pink-600 text-[9px] font-extrabold px-1.5 py-0.5 rounded shadow-sm"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    div.innerHTML = `
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="font-bold text-xs sm:text-sm text-slate-700 dark:text-slate-100">${order.name}</span>
+                                    <span class="bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full text-[10px] font-extrabold">${formatRobux(order.robux)}</span>
+                                    <span class="bg-pink-100 text-pink-600 px-2 py-0.5 rounded-full text-[10px] font-bold">${order.method || 'Bayar Nanti'}</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400">${order.notes ? 'Catatan: ' + order.notes : 'Tanpa catatan'}</p>
+                                <span class="text-[10px] text-pink-400 font-semibold">${formatDateTimeDisplay(order.createdAt)}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 w-full sm:w-auto justify-end">
+                                <button data-id="${order.id}" class="process-order-btn bg-gradient-to-r from-pink-400 to-purple-400 text-white font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 whitespace-nowrap">
+                                    <i class="fa-solid fa-check"></i> Proses Order
+                                </button>
+                                <button data-id="${order.id}" title="Batalkan Order" class="cancel-order-btn bg-rose-100 text-rose-500 hover:bg-rose-500 hover:text-white transition w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid fa-xmark text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        ${proofHtml}
+                    `;
+                    notifListContainer.appendChild(div);
+                });
+
+                document.querySelectorAll('.zoom-proof-trigger').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        const imgUrl = e.currentTarget.getAttribute('data-img');
+                        if (proofZoomImg && proofLightbox) {
+                            proofZoomImg.src = imgUrl;
+                            proofLightbox.classList.remove('hidden');
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.process-order-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const id = e.currentTarget.getAttribute('data-id');
+                        const order = ordersData.find(o => o.id === id);
+                        if (!order) return;
+                        if (txType) { txType.value = 'penjualan'; txType.dispatchEvent(new Event('change')); }
+                        if (txParty) txParty.value = order.name;
+                        if (txRobuxInput) txRobuxInput.value = parseFormattedNumber(order.robux).toLocaleString('id-ID');
+                        updatePriceReference();
+                        if (txAmountInput) txAmountInput.value = suggestedReferenceAmount > 0 ? suggestedReferenceAmount.toLocaleString('id-ID') : '';
+                        const notesEl = document.getElementById('tx-notes');
+                        if (notesEl) notesEl.value = order.notes ? `[${order.method || 'Bayar Nanti'}] ${order.notes}` : `[${order.method || 'Bayar Nanti'}] Order via Web Tamu`;
+                        try { await deleteDoc(doc(db, "orders", id)); } catch (err) {}
+                        if (notifModal) notifModal.classList.add('hidden');
+                        showModal("Berhasil ✨", `Data order ${order.name} berhasil dimasukkan ke form transaksi!`);
+                        const formSection = document.getElementById('form-section');
+                        if (formSection) {
+                            formSection.scrollIntoView({ behavior: 'smooth' });
+                            if (txFormCard) txFormCard.classList.remove('hidden');
+                            if (toggleIcon) toggleIcon.className = "fa-solid fa-xmark text-xs";
+                            if (toggleText) toggleText.textContent = "Tutup Form Transaksi";
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.cancel-order-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = e.currentTarget.getAttribute('data-id');
+                        const order = ordersData.find(o => o.id === id);
+                        if (!order) return;
+                        showModal("Konfirmasi Pembatalan", `Apakah Anda yakin ingin membatalkan order dari ${order.name}?`, true, async () => {
+                            try { await deleteDoc(doc(db, "orders", id)); showModal("Berhasil ✨", `Order dari ${order.name} telah dibatalkan.`); } catch (err) {}
+                        });
+                    });
+                });
+            } else {
+                notifBadge.classList.add('hidden');
+                notifListContainer.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">Tidak ada pesanan baru.</p>`;
+            }
+        }
+
+        function renderApp() {
+            let totalStockIn = 0; let totalStockOut = 0; let totalCapitalSpent = 0; let totalOperationalSpent = 0; let totalPendingStockIn = 0; let totalPendingCapitalSpent = 0;
+            transactionsData.forEach(item => {
+                const robux = parseFormattedNumber(item.robux); const amt = parseFormattedNumber(item.amount);
+                if (item.type === 'modal') {
+                    if (item.status === 'pending') { totalPendingStockIn += robux; totalPendingCapitalSpent += amt; }
+                    else { totalStockIn += robux; totalCapitalSpent += amt; }
+                } else if (item.type === 'operasional') { totalOperationalSpent += amt; }
+                else if (item.type === 'penjualan') { totalStockOut += robux; }
+            });
+
+            currentAvailableStock = totalStockIn - totalStockOut;
+            const baseRate = getPricePerRobux();
+            const stockAssetValue = Math.round(currentAvailableStock * baseRate);
+
+            const statStock = document.getElementById('stat-stock');
+            const statStockValue = document.getElementById('stat-stock-value');
+            if (statStock) statStock.textContent = formatRobux(currentAvailableStock);
+            if (statStockValue) {
+                statStockValue.innerHTML = `
+                    <span class="text-amber-500 font-bold"><i class="fa-solid fa-circle-check text-[10px]"></i> Nilai: ${formatRupiah(stockAssetValue)}</span><br>
+                    <span class="text-amber-500 font-bold"><i class="fa-solid fa-clock text-[10px]"></i> Pending: ${formatRobux(totalPendingStockIn)}</span>
+                `;
+            }
+            if (stockHint) stockHint.textContent = `Stok: ${formatRobux(currentAvailableStock)}`;
+            if (guestStockDisplay) guestStockDisplay.textContent = formatRobux(currentAvailableStock);
+            updatePriceReference();
+
+            updateDateFilterBounds();
+
+            const filtered = getFilteredData();
+            let totalRevenue = 0; let pendingRevenue = 0; let totalRobuxSold = 0; let totalCOGS = 0; let totalFilteredCapitalSpent = 0; let totalFilteredOperationalSpent = 0; let totalFilteredPendingCapitalSpent = 0;
+
+            filtered.forEach(item => {
+                const amount = parseFormattedNumber(item.amount); const robux = parseFormattedNumber(item.robux);
+                if (item.type === 'penjualan') {
+                    if (item.status === 'Belum Lunas') { pendingRevenue += amount; }
+                    else { totalRevenue += amount; totalRobuxSold += robux; totalCOGS += (robux * baseRate); }
+                } else if (item.type === 'modal') {
+                    if (item.status === 'pending') { totalFilteredPendingCapitalSpent += amount; }
+                    else { totalFilteredCapitalSpent += amount; }
+                } else if (item.type === 'operasional') { totalFilteredOperationalSpent += amount; }
+            });
+
+            const netProfit = totalRevenue - totalCOGS;
+            const cashFlow = totalRevenue - (totalFilteredCapitalSpent + totalFilteredOperationalSpent);
+
+            const statRev = document.getElementById('stat-revenue');
+            const statPendingRev = document.getElementById('stat-pending-revenue');
+            const statCogs = document.getElementById('stat-cogs');
+            const statCogsTotalSpent = document.getElementById('stat-cogs-total-spent');
+            const statProf = document.getElementById('stat-profit');
+            const statOperational = document.getElementById('stat-operational');
+            const statCashflow = document.getElementById('stat-cashflow');
+            const statCashflowPending = document.getElementById('stat-cashflow-pending');
+            const statRobux = document.getElementById('stat-robux');
+
+            if (statRev) statRev.textContent = formatRupiah(totalRevenue);
+            if (statPendingRev) statPendingRev.innerHTML = `<i class="fa-solid fa-clock text-[10px]"></i> Pendapatan tertunda : ${formatRupiah(pendingRevenue)}`;
+            
+            if (statCogs) statCogs.innerHTML = `
+                <span class="text-pink-500 font-bold"><i class="fa-solid fa-circle-check text-[10px]"></i> Modal Item Laku</span><br>
+                <span class="text-purple-500 font-bold"><i class="fa-solid fa-wallet text-[10px]"></i> Profit Bersih: ${formatRupiah(Math.round(netProfit))}</span>
+            `;
+            if (statCogsTotalSpent) statCogsTotalSpent.innerHTML = `
+                <span class="text-purple-500 font-bold"><i class="fa-solid fa-circle-check text-[10px]"></i> Pengeluaran Admin / Toko</span><br>
+                <span class="text-rose-500 font-bold"><i class="fa-solid fa-lock text-[10px]"></i> Total Belanja: ${formatRupiah(totalFilteredCapitalSpent)}</span>
+            `;
+            if (statProf) statProf.textContent = formatRupiah(Math.round(totalCOGS));
+            if (statOperational) statOperational.textContent = formatRupiah(totalFilteredOperationalSpent);
+            
+            if (statCashflow) {
+                statCashflow.textContent = formatRupiah(cashFlow);
+                statCashflow.className = `text-xl sm:text-2xl font-extrabold mt-1 truncate ${cashFlow >= 0 ? 'text-teal-500' : 'text-rose-500'}`;
+            }
+            if (statCashflowPending) {
+                statCashflowPending.innerHTML = `
+                    <span class="text-emerald-500 font-bold"><i class="fa-solid fa-circle-check text-[10px]"></i> Jual - (Modal + Operasional)</span><br>
+                    <span class="text-amber-500 font-bold"><i class="fa-solid fa-clock text-[10px]"></i> Pending: ${formatRupiah(pendingRevenue - totalFilteredPendingCapitalSpent)}</span>
+                `;
+            }
+            if (statRobux) statRobux.textContent = formatRobux(totalRobuxSold);
+
+            let salesList = filtered.filter(item => item.type === 'penjualan');
+            let capitalAndOpList = filtered.filter(item => item.type === 'modal' || item.type === 'operasional');
+
+            const searchSalesVal = searchSales && searchSales.value ? searchSales.value.toLowerCase().trim() : '';
+            const searchCapitalVal = searchCapital && searchCapital.value ? searchCapital.value.toLowerCase().trim() : '';
+
+            if (searchSalesVal) {
+                salesList = salesList.filter(item => {
+                    const rawStatus = (item.status || '').toLowerCase();
+                    let isStatusPiutang = rawStatus === 'belum lunas' || rawStatus === 'piutang';
+
+                    if (searchSalesVal.includes('lunas') && !searchSalesVal.includes('belum')) {
+                        if (isStatusPiutang) return false;
+                    }
+
+                    const searchableString = [
+                        item.date || '',
+                        formatDateTimeDisplay(item.date),
+                        item.robux || '',
+                        formatRobux(parseFormattedNumber(item.robux)),
+                        item.amount || '',
+                        formatRupiah(parseFormattedNumber(item.amount)),
+                        item.party || '',
+                        rawStatus,
+                        item.method || '',
+                        item.notes || ''
+                    ].join(' ').toLowerCase();
+
+                    return searchableString.includes(searchSalesVal);
+                });
+            }
+
+            if (searchCapitalVal) {
+                capitalAndOpList = capitalAndOpList.filter(item => {
+                    const statusText = (item.status === 'pending' ? 'pending' : 'lunas success');
+                    const searchableString = [
+                        item.date,
+                        formatDateTimeDisplay(item.date),
+                        item.type,
+                        item.robux,
+                        formatRobux(parseFormattedNumber(item.robux)),
+                        item.amount,
+                        formatRupiah(parseFormattedNumber(item.amount)),
+                        item.party,
+                        item.status,
+                        statusText,
+                        item.notes
+                    ].join(' ').toLowerCase();
+                    return searchableString.includes(searchCapitalVal);
+                });
+            }
+
+            salesList.sort((a, b) => new Date(b.date) - new Date(a.date));
+            capitalAndOpList.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            const totalSales = salesList.length;
+            const totalSalesPages = Math.ceil(totalSales / salesPageSize) || 1;
+            if (salesCurrentPage > totalSalesPages) salesCurrentPage = totalSalesPages;
+            if (salesCurrentPage < 1) salesCurrentPage = 1;
+            const salesStartIdx = (salesCurrentPage - 1) * salesPageSize;
+            const salesEndIdx = Math.min(salesStartIdx + salesPageSize, totalSales);
+            const paginatedSalesList = salesList.slice(salesStartIdx, salesEndIdx);
+
+            if (salesPageNum) salesPageNum.textContent = `${salesCurrentPage} / ${totalSalesPages}`;
+            if (salesInfo) salesInfo.textContent = totalSales > 0 ? `${salesStartIdx + 1} - ${salesEndIdx} dari ${totalSales}` : '0 - 0 dari 0';
+            if (salesPrevBtn) salesPrevBtn.disabled = salesCurrentPage <= 1;
+            if (salesNextBtn) salesNextBtn.disabled = salesCurrentPage >= totalSalesPages;
+
+            if (salesTableBody) {
+                if (paginatedSalesList.length === 0) {
+                    salesTableBody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400 text-xs font-semibold">Tidak ada data penjualan yang cocok.</td></tr>`;
+                } else {
+                    salesTableBody.innerHTML = '';
+                    paginatedSalesList.forEach(item => {
+                        const statusBadge = item.status === 'Belum Lunas' 
+                            ? '<span class="bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-[10px] font-bold">Belum Lunas</span>'
+                            : '<span class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full text-[10px] font-bold">Lunas</span>';
+                        const estimatedModal = parseFormattedNumber(item.robux) * baseRate;
+                        const actualRevenue = parseFormattedNumber(item.amount);
+                        const profitItem = actualRevenue - estimatedModal;
+                        const profitBadge = profitItem >= 0 ? `<span class="font-extrabold text-emerald-500">+${formatRupiah(Math.round(profitItem))}</span>` : `<span class="font-extrabold text-rose-500">${formatRupiah(Math.round(profitItem))}</span>`;
+
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-pink-50/40 dark:hover:bg-slate-800/40 transition-colors";
+                        tr.innerHTML = `
+                            <td class="py-3 px-3 text-slate-600 dark:text-slate-300 whitespace-nowrap text-xs font-semibold">${formatDateTimeDisplay(item.date)}</td>
+                            <td class="py-3 px-3 font-bold text-purple-500 whitespace-nowrap text-xs">${formatRobux(parseFormattedNumber(item.robux))}</td>
+                            <td class="py-3 px-3 font-extrabold text-emerald-500 whitespace-nowrap text-xs">${formatRupiah(actualRevenue)}</td>
+                            <td class="py-3 px-3 whitespace-nowrap text-xs">${profitBadge}</td>
+                            <td class="py-3 px-3 text-slate-700 dark:text-slate-200 text-xs font-bold">${item.party || '-'}</td>
+                            <td class="py-3 px-3 whitespace-nowrap">${statusBadge}</td>
+                            <td class="py-3 px-3 text-xs font-semibold text-pink-500 whitespace-nowrap">${item.method || 'Qris'}</td>
+                            <td class="py-3 px-3 text-center whitespace-nowrap">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button data-id="${item.id}" class="edit-btn w-7 h-7 rounded-xl bg-sky-50 text-sky-500 hover:bg-sky-500 hover:text-white transition flex items-center justify-center shadow-sm" title="Edit"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                                    <button data-id="${item.id}" class="delete-btn w-7 h-7 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition flex items-center justify-center shadow-sm" title="Hapus"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                                </div>
+                            </td>
+                        `;
+                        salesTableBody.appendChild(tr);
+                    });
+                }
+            }
+
+            const totalCapital = capitalAndOpList.length;
+            const totalCapitalPages = Math.ceil(totalCapital / capitalPageSize) || 1;
+            if (capitalCurrentPage > totalCapitalPages) capitalCurrentPage = totalCapitalPages;
+            if (capitalCurrentPage < 1) capitalCurrentPage = 1;
+            const capitalStartIdx = (capitalCurrentPage - 1) * capitalPageSize;
+            const capitalEndIdx = Math.min(capitalStartIdx + capitalPageSize, totalCapital);
+            const paginatedCapitalList = capitalAndOpList.slice(capitalStartIdx, capitalEndIdx);
+
+            if (capitalPageNum) capitalPageNum.textContent = `${capitalCurrentPage} / ${totalCapitalPages}`;
+            if (capitalInfo) capitalInfo.textContent = totalCapital > 0 ? `${capitalStartIdx + 1} - ${capitalEndIdx} dari ${totalCapital}` : '0 - 0 dari 0';
+            if (capitalPrevBtn) capitalPrevBtn.disabled = capitalCurrentPage <= 1;
+            if (capitalNextBtn) capitalNextBtn.disabled = capitalCurrentPage >= totalCapitalPages;
+
+            if (capitalTableBody) {
+                if (paginatedCapitalList.length === 0) {
+                    capitalTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400 text-xs font-semibold">Tidak ada data modal atau operasional.</td></tr>`;
+                } else {
+                    capitalTableBody.innerHTML = '';
+                    paginatedCapitalList.forEach(item => {
+                        let typeBadge = '';
+                        let robuxText = '-';
+                        let statusBadge = '';
+
+                        if (item.type === 'modal') {
+                            typeBadge = '<span class="bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 px-2 py-0.5 rounded-full text-[10px] font-bold">Modal Stok</span>';
+                            robuxText = formatRobux(parseFormattedNumber(item.robux));
+                            statusBadge = item.status === 'pending'
+                                ? '<span class="bg-amber-100 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400 px-2 py-0.5 rounded-full text-[10px] font-bold">Pending ⏳</span>'
+                                : '<span class="bg-emerald-100 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 px-2 py-0.5 rounded-full text-[10px] font-bold">Success ✨</span>';
+                        } else {
+                            typeBadge = '<span class="bg-purple-100 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400 px-2 py-0.5 rounded-full text-[10px] font-bold">Operasional</span>';
+                            robuxText = '-';
+                            statusBadge = item.status === 'Belum Lunas'
+                                ? '<span class="bg-amber-100 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400 px-2 py-0.5 rounded-full text-[10px] font-bold">Belum Lunas</span>'
+                                : '<span class="bg-emerald-100 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 px-2 py-0.5 rounded-full text-[10px] font-bold">Lunas ✨</span>';
+                        }
+
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-pink-50/40 dark:hover:bg-slate-800/40 transition-colors";
+                        tr.innerHTML = `
+                            <td class="py-3 px-3 text-slate-600 dark:text-slate-300 whitespace-nowrap text-xs font-semibold">${formatDateTimeDisplay(item.date)}</td>
+                            <td class="py-3 px-3 whitespace-nowrap">${typeBadge}</td>
+                            <td class="py-3 px-3 font-bold text-purple-500 whitespace-nowrap text-xs">${robuxText}</td>
+                            <td class="py-3 px-3 font-extrabold text-rose-500 whitespace-nowrap text-xs">${formatRupiah(parseFormattedNumber(item.amount))}</td>
+                            <td class="py-3 px-3 text-slate-700 dark:text-slate-200 text-xs font-bold">${item.party || '-'}</td>
+                            <td class="py-3 px-3 whitespace-nowrap">${statusBadge}</td>
+                            <td class="py-3 px-3 text-center whitespace-nowrap">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button data-id="${item.id}" class="edit-btn w-7 h-7 rounded-xl bg-sky-50 dark:bg-sky-950/50 text-sky-500 hover:bg-sky-500 hover:text-white transition flex items-center justify-center active:scale-90 shadow-sm" title="Edit Transaksi">
+                                        <i class="fa-solid fa-pen text-[10px]"></i>
+                                    </button>
+                                    <button data-id="${item.id}" class="delete-btn w-7 h-7 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-500 hover:bg-rose-500 hover:text-white transition flex items-center justify-center active:scale-90 shadow-sm" title="Hapus">
+                                        <i class="fa-solid fa-trash text-[10px]"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        `;
+                        capitalTableBody.appendChild(tr);
+                    });
+                }
+            }
+
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.getAttribute('data-id');
+                    const tx = transactionsData.find(t => t.id === id);
+                    if (!tx) return;
+                    if (editId) editId.value = tx.id;
+                    if (editParty) editParty.value = tx.party || '';
+                    if (editNotes) editNotes.value = tx.notes || '';
+                    if (editAmount) editAmount.value = parseFormattedNumber(tx.amount).toLocaleString('id-ID');
+                    if (editType) {
+                        editType.value = tx.type || 'modal';
+                        if (editRobuxWrapper) {
+                            if (tx.type === 'operasional') editRobuxWrapper.classList.add('hidden');
+                            else editRobuxWrapper.classList.remove('hidden');
+                        }
+                        if (editRobux) editRobux.value = parseFormattedNumber(tx.robux).toLocaleString('id-ID');
+                        if (editStatus) editStatus.value = tx.status || 'Lunas';
+                    }
+                    if (editModal) editModal.classList.remove('hidden');
+                });
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.getAttribute('data-id');
+                    showModal("Konfirmasi Hapus", "Apakah Anda yakin ingin menghapus transaksi ini?", true, async () => {
+                        try { await deleteDoc(doc(db, "transactions", id)); showModal("Berhasil ✨", "Transaksi berhasil dihapus."); } catch (err) {}
+                    });
+                });
+            });
+
+            renderCharts(filtered);
+        }
+
+        if (editForm) {
+            editForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const id = editId.value; if (!id) return;
+                const selectedType = editType ? editType.value : 'modal';
+                const updates = {
+                    type: selectedType,
+                    party: editParty.value.trim(),
+                    notes: editNotes.value.trim(),
+                    status: editStatus.value,
+                    robux: selectedType === 'operasional' ? 0 : parseFormattedNumber(editRobux.value),
+                    amount: parseFormattedNumber(editAmount.value)
+                };
+                try {
+                    await updateDoc(doc(db, "transactions", id), updates);
+                    if (editModal) editModal.classList.add('hidden');
+                    showModal("Berhasil ✨", "Transaksi berhasil diperbarui!");
+                } catch (err) {
+                    showModal("Gagal", "Terjadi kesalahan saat memperbarui data.");
+                }
+            });
+        }
+
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!db) return;
+                const typeVal = txType.value;
+                const robuxVal = typeVal === 'operasional' ? 0 : parseFormattedNumber(txRobuxInput.value);
+                const amountVal = parseFormattedNumber(txAmountInput.value);
+
+                if (typeVal === 'penjualan' && robuxVal > currentAvailableStock) {
+                    showModal("Stok Tidak Cukup 🥺", `Gagal menyimpan! Jumlah Robux yang dijual melebihi stok gudang (${formatRobux(currentAvailableStock)}).`);
+                    return;
+                }
+
+                const submitBtn = document.getElementById('submit-btn');
+                submitBtn.disabled = true; submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Menyimpan...`;
+                const newTx = {
+                    type: typeVal, date: txDate.value, robux: robuxVal, amount: amountVal, party: txParty.value.trim(),
+                    status: document.getElementById('tx-status').value, method: typeVal === 'penjualan' ? document.getElementById('tx-method').value : 'Qris',
+                    notes: document.getElementById('tx-notes').value.trim(), createdAt: new Date().toISOString()
+                };
+                try {
+                    await addDoc(collection(db, "transactions"), newTx);
+                    form.reset(); setDefaultDateTime(); txType.value = 'penjualan'; txType.dispatchEvent(new Event('change'));
+                    showModal("Berhasil ✨", "Transaksi berhasil ditambahkan!");
+                } catch (err) {
+                    showModal("Gagal", "Terjadi kesalahan saat menyimpan transaksi.");
+                } finally {
+                    submitBtn.disabled = false; submitBtn.innerHTML = `<i class="fa-solid fa-heart"></i> Simpan Transaksi`;
+                }
+            });
+        }
+
+        if (searchSales) searchSales.addEventListener('input', () => { salesCurrentPage = 1; renderApp(); });
+        if (searchCapital) searchCapital.addEventListener('input', () => { capitalCurrentPage = 1; renderApp(); });
+        if (filterStatus) filterStatus.addEventListener('change', () => { salesCurrentPage = 1; capitalCurrentPage = 1; renderApp(); });
+
+        if (resetFilterBtn) {
+            resetFilterBtn.addEventListener('click', () => {
+                if (datePickerInstance) datePickerInstance.clear();
+                if (filterStatus) filterStatus.value = 'all';
+                if (searchSales) searchSales.value = ''; if (searchCapital) searchCapital.value = '';
+                salesCurrentPage = 1; capitalCurrentPage = 1; renderApp();
+            });
+        }
+
+        if (exportCsvBtn) {
+            exportCsvBtn.addEventListener('click', () => {
+                const filtered = getFilteredData();
+                if (filtered.length === 0) { showModal("Informasi", "Tidak ada data untuk diexport."); return; }
+                let csvContent = "data:text/csv;charset=utf-8,TanggalWaktu,Jenis,Robux,Total(Rp),Nama,Status,Metode,Catatan\r\n";
+                filtered.forEach(item => {
+                    const row = [item.date, item.type, item.robux, item.amount, `"${(item.party || '').replace(/"/g, '""')}"`, item.status || '-', item.method || '-', `"${(item.notes || '').replace(/"/g, '""')}"`];
+                    csvContent += row.join(",") + "\r\n";
+                });
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `rekap_miyubox_${new Date().toISOString().slice(0,10)}.csv`);
+                document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            });
+        }
+    </script>
+</body>
+</html>
