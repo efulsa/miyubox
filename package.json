@@ -18,7 +18,7 @@
     "url": "https://github.com/efulsa/miyubox/issues"
   },
   "homepage": "https://github.com/efulsa/miyubox#readme",
-  "dependencies": {
+  "devDependencies": {
     "@capacitor/android": "^8.5.3",
     "@capacitor/cli": "^8.5.3",
     "@capacitor/core": "^8.5.3"
