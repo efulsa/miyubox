@@ -1,6 +1,5 @@
-
 {
-  "appId": "com.miyuka.miyubox",
-  "appName": "Miyubox",
+  "appId": "com.miyubox.app",
+  "appName": "miyubox",
   "webDir": "www"
 }
